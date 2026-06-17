@@ -1,6 +1,7 @@
 import { buildEditorialSections } from '@/lib/editorial/article-style';
 
 const INTERNAL_LABELS = new Set([
+  '기사',
   '본문',
   '기사 본문',
   '리드',
@@ -32,17 +33,19 @@ function isInternalLabel(label: string) {
 }
 
 export function ArticleBody({
+  title,
   content,
   summary,
   articleType,
   categoryName
 }: {
+  title?: string | null;
   content?: string | null;
   summary?: string | null;
   articleType?: string | null;
   categoryName?: string | null;
 }) {
-  const sections = buildEditorialSections({ content, summary, articleType, categoryName });
+  const sections = buildEditorialSections({ title, content, summary, articleType, categoryName });
 
   const blocks = sections.flatMap((section) => {
     const body = section.body.filter(Boolean);
