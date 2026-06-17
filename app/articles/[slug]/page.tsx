@@ -193,10 +193,10 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                   {article.is_sponsored && <span className="rounded-full bg-brand-gold/15 px-3 py-1.5 text-brand-gold">제휴표시</span>}
                 </div>
 
-                <h1 className="text-3xl font-black leading-tight tracking-[-0.06em] text-slate-950 md:text-5xl">
+                <h1 className="text-2xl font-black leading-snug tracking-[-0.04em] text-slate-950 md:text-3xl lg:text-[34px]">
                   {article.title}
                 </h1>
-                {article.subtitle && <p className="mt-4 text-lg leading-8 tracking-[-0.02em] text-slate-600">{article.subtitle}</p>}
+                {article.subtitle && <p className="mt-4 text-base leading-7 tracking-[-0.02em] text-slate-600 md:text-lg md:leading-8">{article.subtitle}</p>}
 
                 <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-slate-100 py-4 text-sm text-slate-500">
                   <p><span className="font-bold text-slate-900">{article.author_name ?? '편집부'}</span> 기자</p>
