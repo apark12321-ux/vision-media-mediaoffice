@@ -11,8 +11,8 @@ create table if not exists site_settings (
   id uuid primary key default uuid_generate_v4(),
   site_name text not null default '생활경제저널',
   site_description text not null default '생활경제, 지역상권, 교육, 시니어, 건강, 창업 현장의 브랜드와 사람을 기록하는 생활경제 전문 미디어입니다.',
-  operator_name text default 'Vision Media',
-  business_name text default '비전미디어',
+  operator_name text default 'Algo Partners',
+  business_name text default '알고파트너스',
   representative_name text default '박예준',
   business_registration_number text,
   mail_order_registration_number text,
@@ -86,6 +86,13 @@ create table if not exists articles (
   article_type text default 'normal' check (article_type in ('normal','brand_interview','sponsored','advertorial','press_release')),
   status text default 'draft' check (status in ('draft','review','published','archived')),
   thumbnail_url text,
+  image_caption text,
+  image_source_name text,
+  image_source_url text,
+  image_author text,
+  image_license text,
+  image_license_url text,
+  visual_mode text default 'auto' check (visual_mode in ('auto','text_card','photo','none')),
   author_name text default '편집부',
   client_id uuid references clients(id),
   is_sponsored boolean default false,
@@ -217,59 +224,3 @@ create table if not exists tasks (
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
-
-create table if not exists client_assets (
-  id uuid primary key default uuid_generate_v4(),
-  client_id uuid references clients(id),
-  order_id uuid references orders(id),
-  file_url text,
-  file_type text,
-  original_filename text,
-  usage_permission_confirmed boolean default false,
-  uploaded_at timestamptz default now()
-);
-
-alter table profiles enable row level security;
-alter table site_settings enable row level security;
-alter table categories enable row level security;
-alter table articles enable row level security;
-alter table leads enable row level security;
-alter table clients enable row level security;
-alter table products enable row level security;
-alter table orders enable row level security;
-alter table outreach_logs enable row level security;
-alter table deliveries enable row level security;
-alter table templates enable row level security;
-alter table tasks enable row level security;
-alter table client_assets enable row level security;
-
--- Public read policies
-drop policy if exists "Public can read published articles" on articles;
-create policy "Public can read published articles" on articles for select using (status = 'published' and deleted_at is null);
-
-drop policy if exists "Public can read categories" on categories;
-create policy "Public can read categories" on categories for select using (true);
-
-drop policy if exists "Public can read active products" on products;
-create policy "Public can read active products" on products for select using (is_active = true);
-
-drop policy if exists "Public can read site settings" on site_settings;
-create policy "Public can read site settings" on site_settings for select using (true);
-
-drop policy if exists "Public can insert leads" on leads;
-create policy "Public can insert leads" on leads for insert with check (true);
-
--- Authenticated admin policies for MVP. Restrict further by ADMIN_EMAIL in app middleware/server code.
-create policy "Authenticated can manage profiles" on profiles for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage site_settings" on site_settings for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage categories" on categories for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage articles" on articles for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage leads" on leads for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage clients" on clients for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage products" on products for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage orders" on orders for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage outreach_logs" on outreach_logs for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage deliveries" on deliveries for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage templates" on templates for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage tasks" on tasks for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "Authenticated can manage client_assets" on client_assets for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
