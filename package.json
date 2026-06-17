@@ -12,16 +12,16 @@
   "dependencies": {
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
-    "autoprefixer": "latest",
+    "autoprefixer": "^10.4.20",
     "clsx": "latest",
     "lucide-react": "latest",
     "next": "latest",
-    "postcss": "latest",
+    "postcss": "^8.4.49",
     "react": "latest",
     "react-dom": "latest",
     "resend": "latest",
     "tailwind-merge": "latest",
-    "tailwindcss": "latest"
+    "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
     "@types/node": "latest",
