@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSlug } from '@/lib/utils/format';
 import { detectForbiddenTerms } from '@/lib/forbidden-terms';
+import { analyzeArticleStructure } from '@/lib/editorial/article-style';
 
 function optionalText(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? '').trim();
@@ -15,24 +16,27 @@ export async function createArticle(formData: FormData) {
   const content = String(formData.get('content') ?? '').trim();
   const article_type = String(formData.get('article_type') ?? 'normal');
   const status = String(formData.get('status') ?? 'draft');
+  const summary = optionalText(formData, 'summary');
   const thumbnail_url = optionalText(formData, 'thumbnail_url');
   const image_source_name = optionalText(formData, 'image_source_name');
   const image_license = optionalText(formData, 'image_license');
   const imageRightsConfirmed = formData.get('image_rights_confirmed') === 'true';
   const hasImageRisk = formData.get('image_contains_people_or_trademarks') === 'true';
   const forbidden = detectForbiddenTerms(`${title}\n${content}`);
+  const structure = analyzeArticleStructure({ title, summary, content, articleType: article_type });
 
   const warnings: string[] = [];
   if (thumbnail_url && (!image_source_name || !image_license)) warnings.push('대표 이미지 출처/라이선스 확인 필요');
   if (thumbnail_url && !imageRightsConfirmed) warnings.push('이미지 권리 확인 체크 필요');
   if (hasImageRisk) warnings.push('인물/상표 포함 이미지 수동 검수 필요');
+  warnings.push(...structure.warnings);
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from('articles').insert({
     title,
     slug: createSlug(String(formData.get('slug') || title)) || crypto.randomUUID(),
     subtitle: optionalText(formData, 'subtitle'),
-    summary: optionalText(formData, 'summary'),
+    summary,
     content,
     article_type,
     status,
@@ -47,6 +51,7 @@ export async function createArticle(formData: FormData) {
     is_sponsored: ['brand_interview', 'sponsored', 'advertorial'].includes(article_type),
     sponsored_notice: optionalText(formData, 'sponsored_notice'),
     forbidden_terms_detected: [...forbidden, ...warnings],
+    compliance_checked: structure.ok && forbidden.length === 0 && warnings.length === 0,
     published_at: status === 'published' ? new Date().toISOString() : null
   });
 
