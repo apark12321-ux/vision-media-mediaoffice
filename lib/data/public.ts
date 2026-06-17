@@ -9,7 +9,14 @@ const fallbackSettings: SiteSettings = {
   operator_name: 'Algo Partners',
   business_name: '알고파트너스',
   representative_name: '박예준',
+  business_registration_number: '450-07-03104',
+  mail_order_registration_number: '제2025-인천서구-3321호',
   media_registration_status: 'unregistered',
+  publisher_name: '박예준',
+  editor_name: '박예준',
+  youth_protection_manager: '박예준',
+  privacy_manager: '박예준',
+  address: '인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호 (청라동)',
   contact_email: 'contact@example.com',
   contact_phone: '000-0000-0000'
 };
@@ -140,69 +147,32 @@ export async function getPublicSiteSettings(): Promise<SiteSettings> {
 export async function getCategories(): Promise<Category[]> {
   try {
     const supabase = await createSupabaseServerClient();
-    const { data } = await supabase.from('categories').select('*').order('sort_order', { ascending: true });
-    return mergeBySlug((data as Category[]) ?? [], fallbackCategories);
-  } catch {
-    return fallbackCategories;
-  }
+    const { data } = await supabase.from('categories').select('*').order('sort_order');
+    return data?.length ? (data as Category[]) : fallbackCategories;
+  } catch { return fallbackCategories; }
 }
 
-export async function getPublishedArticles(limit = 12): Promise<Article[]> {
+export async function getArticles(limit?: number): Promise<Article[]> {
   try {
     const supabase = await createSupabaseServerClient();
-    const { data } = await supabase
-      .from('articles')
-      .select('*, categories(*)')
-      .eq('status', 'published')
-      .is('deleted_at', null)
-      .order('published_at', { ascending: false })
-      .limit(limit);
-    return mergeBySlug((data as Article[]) ?? [], fallbackArticles, limit);
-  } catch {
-    return fallbackArticles.slice(0, limit);
-  }
+    const { data } = await supabase.from('articles').select('*, categories(*)').eq('status', 'published').order('published_at', { ascending: false }).limit(limit ?? 100);
+    return data?.length ? mergeBySlug(data as Article[], fallbackArticles, limit) : fallbackArticles.slice(0, limit ?? fallbackArticles.length);
+  } catch { return fallbackArticles.slice(0, limit ?? fallbackArticles.length); }
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  const fallbackArticle = fallbackArticles.find((article) => article.slug === slug) ?? null;
-  if (fallbackArticle) return fallbackArticle;
-
+  const fallback = fallbackArticles.find((article) => article.slug === slug) ?? null;
   try {
     const supabase = await createSupabaseServerClient();
-    const { data } = await supabase
-      .from('articles')
-      .select('*, categories(*)')
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .is('deleted_at', null)
-      .maybeSingle();
-    return (data as Article | null) ?? null;
-  } catch {
-    return null;
-  }
-}
-
-export async function getArticlesByCategory(categorySlug: string): Promise<Article[]> {
-  try {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase
-      .from('articles')
-      .select('*, categories(*)')
-      .eq('status', 'published')
-      .eq('categories.slug', categorySlug)
-      .order('published_at', { ascending: false });
-    return mergeBySlug((data as Article[]) ?? [], fallbackArticles.filter((article) => article.categories?.slug === categorySlug));
-  } catch {
-    return fallbackArticles.filter((article) => article.categories?.slug === categorySlug);
-  }
+    const { data } = await supabase.from('articles').select('*, categories(*)').eq('slug', slug).single();
+    return fallback ?? ((data as Article) || null);
+  } catch { return fallback; }
 }
 
 export async function getProducts(): Promise<Product[]> {
   try {
     const supabase = await createSupabaseServerClient();
     const { data } = await supabase.from('products').select('*').eq('is_active', true).order('sort_order');
-    return ((data as Product[])?.length ? (data as Product[]) : fallbackProducts);
-  } catch {
-    return fallbackProducts;
-  }
+    return data?.length ? (data as Product[]) : fallbackProducts;
+  } catch { return fallbackProducts; }
 }
