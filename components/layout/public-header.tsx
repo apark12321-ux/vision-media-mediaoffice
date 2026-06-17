@@ -9,7 +9,8 @@ const mainNav = [
   { href: '/category/health-beauty', label: '건강·뷰티' },
   { href: '/category/startup-franchise', label: '창업·프랜차이즈' },
   { href: '/category/brand-interview', label: '브랜드 인터뷰' },
-  { href: '/opinion', label: '오피니언' }
+  { href: '/category/opinion', label: '오피니언' },
+  { href: '/category/press-release', label: '보도자료' }
 ];
 
 const utilityNav = [
