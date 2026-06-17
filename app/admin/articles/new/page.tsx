@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { ArticleWritingGuide } from '@/components/admin/article-writing-guide';
 import { createArticle } from '../actions';
 
 export default function NewArticlePage() {
@@ -17,7 +18,7 @@ export default function NewArticlePage() {
           <input name="title" required placeholder="제목" className="w-full rounded-lg border px-3 py-2" />
           <input name="slug" placeholder="slug 미입력 시 제목 기반 자동 생성" className="w-full rounded-lg border px-3 py-2" />
           <input name="subtitle" placeholder="부제" className="w-full rounded-lg border px-3 py-2" />
-          <textarea name="summary" rows={3} placeholder="요약" className="w-full rounded-lg border px-3 py-2" />
+          <textarea name="summary" rows={3} placeholder="요약: 기사 핵심, 배경, 독자 영향을 1~2문장으로 정리" className="w-full rounded-lg border px-3 py-2" />
           <div className="grid gap-4 md:grid-cols-2">
             <select name="article_type" className="rounded-lg border px-3 py-2">
               <option value="normal">일반 기사</option>
@@ -35,10 +36,12 @@ export default function NewArticlePage() {
           <input name="sponsored_notice" placeholder="제휴 고지문 직접 입력(선택)" className="w-full rounded-lg border px-3 py-2" />
         </section>
 
+        <ArticleWritingGuide />
+
         <section className="space-y-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
           <div>
             <h2 className="text-lg font-black text-brand-navy">대표 이미지</h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">기사 카드, 메인 편집판, 기사 상세 대표 이미지에 직접 노출됩니다. 텍스트 카드가 아니라 실제 이미지 URL 또는 업로드 이미지 URL을 넣어야 합니다.</p>
+            <p className="mt-1 text-sm leading-6 text-gray-600">기사 카드와 기사 상세에 노출되는 실제 이미지 URL을 입력합니다. 이미지가 없으면 카테고리 기본 이미지가 표시됩니다.</p>
           </div>
           <input name="thumbnail_url" value={thumbnailUrl} onChange={(event) => setThumbnailUrl(event.target.value)} placeholder="대표 이미지 URL 또는 Supabase Storage URL" className="w-full rounded-lg border px-3 py-2" />
           {thumbnailUrl ? (
@@ -47,33 +50,33 @@ export default function NewArticlePage() {
               <img src={thumbnailUrl} alt="대표 이미지 미리보기" className="max-h-80 w-full object-contain" />
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed bg-white p-5 text-sm text-gray-500">대표 이미지가 없으면 공개 화면에서는 카테고리별 기본 무료 자료사진이 표시됩니다.</div>
+            <div className="rounded-lg border border-dashed bg-white p-5 text-sm text-gray-500">대표 이미지가 없으면 공개 화면에서는 카테고리별 기본 이미지가 표시됩니다.</div>
           )}
-          <input name="image_caption" placeholder="이미지 캡션 예: ▲ 기사 관련 자료사진. 출처=Unsplash." className="w-full rounded-lg border px-3 py-2" />
+          <input name="image_caption" placeholder="이미지 캡션" className="w-full rounded-lg border px-3 py-2" />
           <div className="grid gap-4 md:grid-cols-2">
-            <input name="image_source_name" placeholder="출처명 예: Unsplash, Pexels, 광고주 제공" className="rounded-lg border px-3 py-2" />
+            <input name="image_source_name" placeholder="출처명" className="rounded-lg border px-3 py-2" />
             <input name="image_source_url" placeholder="원본 출처 URL" className="rounded-lg border px-3 py-2" />
-            <input name="image_author" placeholder="저작자명(있으면 입력)" className="rounded-lg border px-3 py-2" />
-            <input name="image_license" placeholder="라이선스명 예: Unsplash License" className="rounded-lg border px-3 py-2" />
+            <input name="image_author" placeholder="저작자명" className="rounded-lg border px-3 py-2" />
+            <input name="image_license" placeholder="라이선스명" className="rounded-lg border px-3 py-2" />
             <input name="image_license_url" placeholder="라이선스 URL" className="rounded-lg border px-3 py-2 md:col-span-2" />
           </div>
           <label className="flex gap-2 text-sm font-bold text-gray-700">
             <input name="image_rights_confirmed" type="checkbox" value="true" />
-            이미지 사용 권한, 출처, 라이선스를 확인했습니다.
+            이미지 사용 권한과 출처를 확인했습니다.
           </label>
           <label className="flex gap-2 text-sm text-gray-700">
             <input name="image_contains_people_or_trademarks" type="checkbox" value="true" />
-            인물 얼굴, 상표, 로고, 간판, 제품명이 뚜렷하게 포함되어 있습니다.
+            추가 권리 검수가 필요한 이미지입니다.
           </label>
         </section>
 
         <section className="space-y-4">
           <h2 className="border-b pb-2 text-lg font-black text-gray-950">본문</h2>
-          <textarea name="content" rows={15} required placeholder="본문" className="w-full rounded-lg border px-3 py-2" />
+          <textarea name="content" rows={20} required placeholder="[리드]\n기사 핵심을 먼저 씁니다.\n\n[배경]\n이 이슈가 나온 이유를 설명합니다.\n\n[현장 맥락]\n업계·지역·소비자 관점의 변화를 설명합니다.\n\n[독자 영향]\n독자에게 어떤 의미가 있는지 설명합니다.\n\n[전망과 과제]\n앞으로 확인할 점을 정리합니다." className="w-full rounded-lg border px-3 py-2 leading-7" />
         </section>
 
         <div className="rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-          발행 전 체크: 제휴 고지, 과장 표현, 자료 권리, 이미지 출처/라이선스, 개인정보 노출, 민감 업종 표현을 확인하세요.
+          발행 전 체크: 기사 톤과 구조, 제휴 고지, 과장 표현, 자료 권리, 이미지 출처를 확인하세요.
         </div>
         {state.message && <p className={`rounded-lg p-3 text-sm ${state.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{state.message}</p>}
         <button disabled={isPending} className="rounded-xl bg-brand-navy px-5 py-3 font-black text-white">저장</button>
