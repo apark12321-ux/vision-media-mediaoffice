@@ -1,6 +1,6 @@
-# Vision Media MediaOffice
+# Algo Partners MediaOffice
 
-비전미디어가 운영하는 생활경제 전문 매체 **생활경제저널**과 1인 매체 운영 시스템 **MediaOffice**의 Next.js + Supabase MVP입니다.
+알고파트너스가 운영하는 생활경제 전문 매체 **생활경제저널**과 1인 매체 운영 시스템 **MediaOffice**의 Next.js + Supabase MVP입니다.
 
 ## 핵심 기능
 
@@ -26,6 +26,13 @@
 - Supabase Auth/Database/Storage
 - Vercel 배포 기준
 - Resend 이메일 연동 준비
+
+## 브랜드 구조
+
+- 운영사: 알고파트너스 / Algo Partners
+- 매체명: 생활경제저널 / Everyday Economy Journal
+- 관리자 툴: MediaOffice
+- 사업 영역: 인터넷 매체 운영, 브랜드 인터뷰, 제휴 콘텐츠, 광고대행, 콘텐츠 제작, AI 마케팅 컨설팅
 
 ## 로컬 실행
 

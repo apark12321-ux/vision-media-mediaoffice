@@ -1,5 +1,5 @@
 insert into site_settings (site_name, site_description, operator_name, business_name, representative_name, media_registration_status, contact_email, contact_phone)
-values ('생활경제저널', '생활경제, 지역상권, 교육, 시니어, 건강, 창업 현장의 브랜드와 사람을 기록하는 생활경제 전문 미디어입니다.', 'Vision Media', '비전미디어', '박예준', 'unregistered', 'contact@example.com', '000-0000-0000')
+values ('생활경제저널', '생활경제, 지역상권, 교육, 시니어, 건강, 창업 현장의 브랜드와 사람을 기록하는 생활경제 전문 미디어입니다.', 'Algo Partners', '알고파트너스', '박예준', 'unregistered', 'contact@example.com', '000-0000-0000')
 on conflict do nothing;
 
 insert into categories (name, slug, description, sort_order) values

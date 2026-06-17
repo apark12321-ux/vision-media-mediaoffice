@@ -1,6 +1,6 @@
 # Codex 작업 지시서
 
-이 저장소는 비전미디어가 운영하는 생활경제저널 + MediaOffice MVP 초안이다.
+이 저장소는 알고파트너스가 운영하는 생활경제저널 + MediaOffice MVP 초안이다.
 
 ## 목표
 
@@ -79,6 +79,7 @@ Next.js + Supabase 기반으로 1인 인터넷 매체 운영자가 다음 업무
 
 ## 기본 명칭
 
-- 운영사: 비전미디어 / Vision Media
+- 운영사: 알고파트너스 / Algo Partners
 - 매체명: 생활경제저널 / Everyday Economy Journal
 - 관리자 툴: MediaOffice
+- 사업 영역: 인터넷 매체 운영, 브랜드 인터뷰, 제휴 콘텐츠, 광고대행, 콘텐츠 제작, AI 마케팅 컨설팅
