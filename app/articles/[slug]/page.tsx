@@ -99,7 +99,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
           <div className="mt-8 border-b pb-10">
             <div className="mb-5 border-l-4 border-gray-950 pl-3 text-sm font-black text-gray-950">본문</div>
-            <div className="whitespace-pre-wrap text-[1.08rem] leading-9 text-gray-850 md:text-[1.12rem]">
+            <div className="whitespace-pre-wrap text-[1.08rem] leading-9 text-gray-800 md:text-[1.12rem]">
               {article.content}
             </div>
           </div>
