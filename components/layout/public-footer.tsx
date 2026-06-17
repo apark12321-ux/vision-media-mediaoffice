@@ -1,14 +1,23 @@
 import Link from 'next/link';
 import { getPublicSiteSettings } from '@/lib/data/public';
 
-function hasValue(value?: string | null) {
-  if (!value) return false;
-  const normalized = value.trim().toLowerCase();
-  return Boolean(normalized) && !normalized.includes('example.com') && normalized !== '000-0000-0000';
+const OFFICIAL_BUSINESS = {
+  businessName: '알고파트너스',
+  operatorName: 'Algo Partners',
+  representativeName: '박예준',
+  businessRegistrationNumber: '450-07-03104',
+  mailOrderRegistrationNumber: '제2025-인천서구-3321호',
+  address: '인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호 (청라동)',
+  contactEmail: 'contact@example.com',
+  contactPhone: '000-0000-0000'
+};
+
+function valueOrFallback(value: string | null | undefined, fallback: string) {
+  const normalized = value?.trim();
+  return normalized ? normalized : fallback;
 }
 
-function InfoRow({ label, value }: { label: string; value?: string | null }) {
-  if (!hasValue(value)) return null;
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <p>
       <span className="font-bold text-gray-800">{label}</span>
@@ -21,81 +30,100 @@ function InfoRow({ label, value }: { label: string; value?: string | null }) {
 export async function PublicFooter() {
   const settings = await getPublicSiteSettings();
   const isRegistered = settings.media_registration_status === 'registered';
-  const isPreparing = settings.media_registration_status === 'preparing';
-  const representativeName = settings.representative_name ?? '박예준';
-  const publisherName = settings.publisher_name ?? representativeName;
-  const editorName = settings.editor_name ?? representativeName;
-  const youthManager = settings.youth_protection_manager ?? representativeName;
-  const privacyManager = settings.privacy_manager ?? representativeName;
+
+  const businessName = valueOrFallback(settings.business_name, OFFICIAL_BUSINESS.businessName);
+  const operatorName = valueOrFallback(settings.operator_name, OFFICIAL_BUSINESS.operatorName);
+  const representativeName = valueOrFallback(settings.representative_name, OFFICIAL_BUSINESS.representativeName);
+  const businessRegistrationNumber = valueOrFallback(settings.business_registration_number, OFFICIAL_BUSINESS.businessRegistrationNumber);
+  const mailOrderRegistrationNumber = valueOrFallback(settings.mail_order_registration_number, OFFICIAL_BUSINESS.mailOrderRegistrationNumber);
+  const address = valueOrFallback(settings.address, OFFICIAL_BUSINESS.address);
+  const publisherName = valueOrFallback(settings.publisher_name, representativeName);
+  const editorName = valueOrFallback(settings.editor_name, representativeName);
+  const youthManager = valueOrFallback(settings.youth_protection_manager, representativeName);
+  const privacyManager = valueOrFallback(settings.privacy_manager, representativeName);
+  const contactEmail = valueOrFallback(settings.contact_email, OFFICIAL_BUSINESS.contactEmail);
+  const contactPhone = valueOrFallback(settings.contact_phone, OFFICIAL_BUSINESS.contactPhone);
 
   return (
-    <footer className="mt-16 border-t border-gray-200 bg-white">
+    <footer className="mt-20 border-t border-gray-200 bg-white">
       <div className="mx-auto max-w-7xl px-4 py-10">
-        <div className="border-b border-gray-200 pb-6">
-          <h2 className="font-serif text-2xl font-black tracking-tight text-brand-navy">{settings.site_name}</h2>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">Everyday Economy Journal</p>
-          <nav className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-700">
-            <Link href="/about">회사소개</Link>
-            <Link href="/report">기사제보</Link>
-            <Link href="/advertise">광고·제휴문의</Link>
-            <Link href="/search">기사검색</Link>
-            <Link href="/ethics">신문윤리강령</Link>
-            <Link href="/practice-code">신문윤리실천요강</Link>
-            <Link href="/youth-policy">청소년보호정책</Link>
-            <Link href="/terms">이용약관</Link>
-            <Link href="/privacy">개인정보처리방침</Link>
-            <Link href="/copyright-policy">저작권보호정책</Link>
-            <Link href="/sponsored-policy">제휴콘텐츠정책</Link>
-          </nav>
+        <div className="flex flex-col gap-4 border-b border-gray-200 pb-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="text-xl font-black tracking-tight text-gray-950">{settings.site_name}</h2>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">Everyday Economy Journal</p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-600">
+              {settings.site_name}은 {businessName}가 운영하는 생활경제 전문 인터넷매체로, 생활경제·지역상권·교육·시니어·건강·창업 현장의 정보를 보도한다.
+            </p>
+          </div>
+          <div className="text-xs leading-6 text-gray-500 md:text-right">
+            <p>운영사: {businessName}</p>
+            <p>영문명: {operatorName}</p>
+          </div>
         </div>
 
-        <div className="grid gap-8 border-b border-gray-200 py-7 text-[13px] leading-7 text-gray-600 lg:grid-cols-[1.1fr_1.1fr_1fr]">
+        <nav className="flex flex-wrap gap-x-4 gap-y-2 border-b border-gray-200 py-5 text-sm font-semibold text-gray-700">
+          <Link href="/about">회사소개</Link>
+          <Link href="/report">기사제보</Link>
+          <Link href="/advertise">광고·제휴문의</Link>
+          <Link href="/search">기사검색</Link>
+          <Link href="/ethics">신문윤리강령</Link>
+          <Link href="/practice-code">신문윤리실천요강</Link>
+          <Link href="/youth-policy">청소년보호정책</Link>
+          <Link href="/terms">이용약관</Link>
+          <Link href="/privacy">개인정보처리방침</Link>
+          <Link href="/copyright-policy">저작권보호정책</Link>
+          <Link href="/sponsored-policy">제휴콘텐츠정책</Link>
+        </nav>
+
+        <div className="grid gap-8 border-b border-gray-200 py-7 text-[13px] leading-7 text-gray-600 md:grid-cols-2 xl:grid-cols-4">
           <section>
-            <h3 className="mb-2 text-sm font-black text-gray-900">매체 정보</h3>
+            <h3 className="mb-2 text-sm font-black text-gray-950">매체 등록정보</h3>
             <InfoRow label="제호" value={settings.site_name} />
-            <InfoRow label="운영사" value={settings.business_name} />
-            <InfoRow label="대표자" value={representativeName} />
             <InfoRow label="발행인" value={publisherName} />
             <InfoRow label="편집인" value={editorName} />
-            <InfoRow label="발행 형태" value="인터넷 기반 생활경제 전문 매체" />
-            <InfoRow label="발행 주기" value="수시 발행" />
-          </section>
-
-          <section>
-            <h3 className="mb-2 text-sm font-black text-gray-900">사업자 정보</h3>
-            <InfoRow label="상호" value={settings.business_name} />
-            <InfoRow label="사업자등록번호" value={settings.business_registration_number} />
-            <InfoRow label="통신판매업신고번호" value={settings.mail_order_registration_number} />
-            <InfoRow label="주소" value={settings.address} />
-            <InfoRow label="이메일" value={settings.contact_email} />
-            <InfoRow label="전화" value={settings.contact_phone} />
-          </section>
-
-          <section>
-            <h3 className="mb-2 text-sm font-black text-gray-900">등록·책임자 정보</h3>
-            {isRegistered ? (
-              <>
-                <InfoRow label="인터넷신문 등록번호" value={settings.media_registration_number} />
-                <InfoRow label="인터넷신문 등록일" value={settings.media_registered_at} />
-              </>
-            ) : (
-              <p className="text-gray-600">
-                인터넷신문 등록번호와 등록일은 관할기관 등록 완료 후 표시됩니다.
-              </p>
-            )}
-            {isPreparing && <p className="text-gray-600">현재 인터넷신문 등록 준비 단계입니다.</p>}
             <InfoRow label="청소년보호책임자" value={youthManager} />
+            <InfoRow label="발행 형태" value="인터넷 기반 생활경제 전문 매체" />
+            <InfoRow label="발행 주기" value="수시 갱신" />
+            <InfoRow label="인터넷신문 등록번호" value={isRegistered && settings.media_registration_number ? settings.media_registration_number : '등록 후 표시'} />
+            <InfoRow label="인터넷신문 등록일" value={isRegistered && settings.media_registered_at ? settings.media_registered_at : '등록 후 표시'} />
+          </section>
+
+          <section>
+            <h3 className="mb-2 text-sm font-black text-gray-950">사업자 정보</h3>
+            <InfoRow label="상호" value={businessName} />
+            <InfoRow label="대표자" value={representativeName} />
+            <InfoRow label="사업자등록번호" value={businessRegistrationNumber} />
+            <InfoRow label="통신판매업신고번호" value={mailOrderRegistrationNumber} />
+            <InfoRow label="사업장 소재지" value={address} />
+          </section>
+
+          <section>
+            <h3 className="mb-2 text-sm font-black text-gray-950">연락처 및 책임자</h3>
+            <InfoRow label="대표 이메일" value={contactEmail} />
+            <InfoRow label="대표 전화" value={contactPhone} />
             <InfoRow label="개인정보보호책임자" value={privacyManager} />
+            <InfoRow label="광고·제휴 문의" value={contactEmail} />
+            <InfoRow label="기사제보" value={contactEmail} />
+          </section>
+
+          <section>
+            <h3 className="mb-2 text-sm font-black text-gray-950">사업 분야</h3>
+            <p>광고대행업</p>
+            <p>전자상거래 소매 중개업</p>
+            <p>응용 소프트웨어 개발 및 공급업</p>
+            <p>영상물 제공 서비스업·데이터베이스 및 온라인정보 제공업</p>
+            <p>광고 영화 및 비디오물 제작업</p>
           </section>
         </div>
 
-        <div className="pt-5 text-xs leading-6 text-gray-500">
+        <div className="space-y-2 pt-5 text-xs leading-6 text-gray-500">
           <p>
-            생활경제저널의 모든 기사와 콘텐츠는 저작권법의 보호를 받으며, 무단 전재·복사·배포를 금지합니다.
+            {settings.site_name}의 모든 기사와 콘텐츠는 저작권법의 보호를 받으며, 무단 전재·복사·배포 및 재배포를 금지한다. 제휴·광고성 콘텐츠는 별도 고지 기준에 따라 표시한다.
           </p>
-          <p className="mt-1">
-            Copyright ⓒ {new Date().getFullYear()} {settings.site_name}. All rights reserved.
+          <p>
+            사업자등록번호와 통신판매업신고번호는 공식 등록증 및 통신판매업신고증 기준으로 표기한다. 인터넷신문 등록번호와 등록일은 관할 기관 등록 완료 후 즉시 갱신한다.
           </p>
+          <p className="font-semibold text-gray-600">Copyright ⓒ {new Date().getFullYear()} {settings.site_name}. All rights reserved.</p>
         </div>
       </div>
     </footer>
