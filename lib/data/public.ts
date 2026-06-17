@@ -160,6 +160,16 @@ export async function getArticles(limit?: number): Promise<Article[]> {
   } catch { return fallbackArticles.slice(0, limit ?? fallbackArticles.length); }
 }
 
+export async function getPublishedArticles(limit?: number): Promise<Article[]> {
+  return getArticles(limit);
+}
+
+export async function getArticlesByCategory(slug: string, limit?: number): Promise<Article[]> {
+  const articles = await getArticles();
+  const filtered = articles.filter((article) => article.categories?.slug === slug);
+  return typeof limit === 'number' ? filtered.slice(0, limit) : filtered;
+}
+
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const fallback = fallbackArticles.find((article) => article.slug === slug) ?? null;
   try {
