@@ -28,8 +28,44 @@ const INTERNAL_LABELS = new Set([
   '보도자료'
 ]);
 
+const NEWS_TONE_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/입니다(?=\.|!|\?|$)/g, '이다'],
+  [/했습니다(?=\.|!|\?|$)/g, '했다'],
+  [/하였습니다(?=\.|!|\?|$)/g, '했다'],
+  [/합니다(?=\.|!|\?|$)/g, '한다'],
+  [/됩니다(?=\.|!|\?|$)/g, '된다'],
+  [/됐습니다(?=\.|!|\?|$)/g, '됐다'],
+  [/되었습니다(?=\.|!|\?|$)/g, '됐다'],
+  [/있습니다(?=\.|!|\?|$)/g, '있다'],
+  [/없습니다(?=\.|!|\?|$)/g, '없다'],
+  [/보입니다(?=\.|!|\?|$)/g, '보인다'],
+  [/나타납니다(?=\.|!|\?|$)/g, '나타난다'],
+  [/나타났습니다(?=\.|!|\?|$)/g, '나타났다'],
+  [/확인됩니다(?=\.|!|\?|$)/g, '확인된다'],
+  [/분석됩니다(?=\.|!|\?|$)/g, '분석된다'],
+  [/전망됩니다(?=\.|!|\?|$)/g, '전망된다'],
+  [/관측됩니다(?=\.|!|\?|$)/g, '관측된다'],
+  [/해석됩니다(?=\.|!|\?|$)/g, '해석된다'],
+  [/필요합니다(?=\.|!|\?|$)/g, '필요하다'],
+  [/중요합니다(?=\.|!|\?|$)/g, '중요하다'],
+  [/가능합니다(?=\.|!|\?|$)/g, '가능하다'],
+  [/어렵습니다(?=\.|!|\?|$)/g, '어렵다'],
+  [/높습니다(?=\.|!|\?|$)/g, '높다'],
+  [/많습니다(?=\.|!|\?|$)/g, '많다'],
+  [/큽니다(?=\.|!|\?|$)/g, '크다'],
+  [/밝혔습니다(?=\.|!|\?|$)/g, '밝혔다'],
+  [/전했습니다(?=\.|!|\?|$)/g, '전했다'],
+  [/설명했습니다(?=\.|!|\?|$)/g, '설명했다'],
+  [/지적했습니다(?=\.|!|\?|$)/g, '지적했다'],
+  [/덧붙였습니다(?=\.|!|\?|$)/g, '덧붙였다']
+];
+
 function isInternalLabel(label: string) {
   return INTERNAL_LABELS.has(label.trim());
+}
+
+function normalizeNewsTone(text: string) {
+  return NEWS_TONE_REPLACEMENTS.reduce((result, [pattern, replacement]) => result.replace(pattern, replacement), text).trim();
 }
 
 export function ArticleBody({
@@ -48,7 +84,7 @@ export function ArticleBody({
   const sections = buildEditorialSections({ title, content, summary, articleType, categoryName });
 
   const blocks = sections.flatMap((section) => {
-    const body = section.body.filter(Boolean);
+    const body = section.body.map(normalizeNewsTone).filter(Boolean);
     if (!body.length) return [];
 
     if (isInternalLabel(section.heading)) {
@@ -62,7 +98,7 @@ export function ArticleBody({
   });
 
   if (!blocks.length) {
-    return <p className="text-gray-600">기사가 준비 중입니다.</p>;
+    return <p className="text-gray-600">기사가 준비 중이다.</p>;
   }
 
   return (
