@@ -4,6 +4,16 @@ import { useState, useTransition } from 'react';
 import { ArticleWritingGuide } from '@/components/admin/article-writing-guide';
 import { createArticle } from '../actions';
 
+const articlePlaceholder = `생활경제 현장에서 체감되는 소비 부담이 커지면서 가계와 소상공인 모두 지출 구조를 다시 점검하고 있다. 외식비와 생필품 가격, 교육비 등 생활 필수 영역의 비용 부담이 이어지면서 소비자의 선택 기준도 이전보다 세분화되는 모습이다.
+
+최근 지역 상권에서는 가격 비교와 후기 확인이 일상화되고 있다. 소비자는 단순히 가까운 매장을 찾는 데 그치지 않고, 서비스 범위와 운영자의 설명, 예약 절차, 사후 대응 방식까지 함께 확인하는 경향을 보이고 있다.
+
+업계에서는 이러한 변화가 단기적인 소비 위축만으로 설명되기 어렵다고 본다. 온라인 검색과 지역 기반 평판이 결합되면서 생활서비스 업종에서도 정보의 투명성이 중요한 경쟁 요소로 떠올랐다는 분석이다.
+
+다만 모든 사업자가 같은 방식으로 대응하기는 어렵다. 소규모 사업장일수록 콘텐츠 제작과 고객 응대를 동시에 수행해야 하는 부담이 크고, 비용을 들여 광고를 집행하더라도 기본 정보가 정리되어 있지 않으면 전환 효과가 제한될 수 있다.
+
+전문가들은 하반기 생활경제의 핵심 변수가 물가 안정과 소비심리 회복 여부에 달려 있다고 보고 있다. 비용 부담이 계속되는 상황에서는 지역 사업자가 고객과의 접점을 세분화하고, 신뢰를 높이는 정보를 꾸준히 축적하는 전략이 필요하다는 지적이다.`;
+
 export default function NewArticlePage() {
   const [state, setState] = useState<{ ok?: boolean; message?: string }>({});
   const [thumbnailUrl, setThumbnailUrl] = useState('');
@@ -71,8 +81,8 @@ export default function NewArticlePage() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="border-b pb-2 text-lg font-black text-gray-950">본문</h2>
-          <textarea name="content" rows={20} required placeholder="[리드]\n기사 핵심을 먼저 씁니다.\n\n[배경]\n이 이슈가 나온 이유를 설명합니다.\n\n[현장 맥락]\n업계·지역·소비자 관점의 변화를 설명합니다.\n\n[독자 영향]\n독자에게 어떤 의미가 있는지 설명합니다.\n\n[전망과 과제]\n앞으로 확인할 점을 정리합니다." className="w-full rounded-lg border px-3 py-2 leading-7" />
+          <h2 className="border-b pb-2 text-lg font-black text-gray-950">기사 원고</h2>
+          <textarea name="content" rows={26} required placeholder={articlePlaceholder} className="w-full rounded-lg border px-3 py-2 leading-7" />
         </section>
 
         <div className="rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-900">
