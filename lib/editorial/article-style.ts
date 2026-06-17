@@ -4,7 +4,9 @@ export type EditorialSection = {
   toneHint?: string;
 };
 
-const EXPLICIT_SECTION_RE = /^\s*(?:#{2,3}\s*)?(?:\[)?(리드|핵심 요약|핵심 쟁점|배경|현장 맥락|현장 반응|독자 영향|소비자 영향|업계 영향|전망|정리|전망과 과제|편집자 주|문답|인터뷰|보도자료)(?:\])?\s*$/;
+const EXPLICIT_SECTION_RE = /^\s*(?:#{2,3}\s*)?(?:\[)?(리드|핵심 요약|핵심 쟁점|배경|현장 맥락|현장 반응|독자 영향|소비자 영향|업계 영향|전망|정리|전망과 과제|브랜드 배경|운영 철학|독자 체크포인트|발표 내용|사업 배경|향후 계획|편집자 주|문답|인터뷰|보도자료)(?:\])?\s*$/;
+
+const MARKDOWN_HEADING_RE = /^\s*#{2,3}\s+(.+?)\s*$/;
 
 const ARTICLE_CONNECTORS = ['다만', '특히', '이에', '한편', '따라서', '반면', '업계', '현장', '관계자', '소비자', '보호자', '학부모', '이용자', '사업자'];
 
@@ -22,8 +24,14 @@ export function hasExplicitEditorialSections(content: string | null | undefined)
 }
 
 function normalizeHeading(raw: string) {
-  const match = raw.trim().match(EXPLICIT_SECTION_RE);
-  return match?.[1] ?? null;
+  const line = raw.trim();
+  const internalMatch = line.match(EXPLICIT_SECTION_RE);
+  if (internalMatch) return internalMatch[1] ?? null;
+
+  const markdownMatch = line.match(MARKDOWN_HEADING_RE);
+  if (markdownMatch) return markdownMatch[1] ?? null;
+
+  return null;
 }
 
 export function buildEditorialSections(input: {
@@ -37,7 +45,11 @@ export function buildEditorialSections(input: {
     return [{ heading: '리드', body: [input.summary], toneHint: '기사의 핵심을 한 문단으로 압축합니다.' }];
   }
 
-  if (hasExplicitEditorialSections(input.content)) {
+  const hasAnyHeading = String(input.content ?? '')
+    .split('\n')
+    .some((line) => normalizeHeading(line));
+
+  if (hasAnyHeading) {
     const sections: EditorialSection[] = [];
     let current: EditorialSection | null = null;
 
@@ -63,19 +75,8 @@ export function buildEditorialSections(input: {
     return sections.filter((section) => section.body.length);
   }
 
-  const categoryName = input.categoryName ?? '생활경제';
-  const labels = input.articleType === 'brand_interview'
-    ? ['리드', '브랜드 배경', '운영 철학', '현장 맥락', '독자 체크포인트', '정리']
-    : input.articleType === 'press_release'
-      ? ['리드', '발표 내용', '사업 배경', '향후 계획', '정리']
-      : ['리드', '배경', '현장 맥락', '독자 영향', '전망과 과제'];
-
   const source = input.summary ? [input.summary, ...paragraphs] : paragraphs;
-  return source.map((paragraph, index) => ({
-    heading: labels[Math.min(index, labels.length - 1)] ?? '정리',
-    body: [paragraph],
-    toneHint: index === 0 ? `${categoryName} 독자가 먼저 알아야 할 핵심을 제시합니다.` : undefined
-  }));
+  return [{ heading: '본문', body: source }];
 }
 
 export function analyzeArticleStructure(input: {
@@ -85,34 +86,37 @@ export function analyzeArticleStructure(input: {
   articleType?: string | null;
 }) {
   const paragraphs = splitParagraphs(input.content);
-  const hasSections = hasExplicitEditorialSections(input.content);
   const connectorCount = ARTICLE_CONNECTORS.filter((word) => input.content.includes(word)).length;
   const warnings: string[] = [];
 
-  if (!input.summary || input.summary.trim().length < 35) {
+  if (!input.summary || input.summary.trim().length < 45) {
     warnings.push('요약문이 짧습니다. 기사 핵심, 배경, 독자 영향을 1~2문장으로 보강하세요.');
   }
 
-  if (paragraphs.length < 5) {
-    warnings.push('본문 문맥 단락이 부족합니다. 리드, 배경, 현장 맥락, 독자 영향, 정리 단락을 갖추세요.');
+  if (paragraphs.length < 6) {
+    warnings.push('본문 문단 수가 부족합니다. 리드, 배경, 쟁점, 현장 맥락, 독자 영향, 전망 단락이 자연스럽게 이어져야 합니다.');
   }
 
-  if (!hasSections) {
-    warnings.push('본문에 기사 구조 표지가 없습니다. [리드], [배경], [현장 맥락], [독자 영향], [정리] 구조를 권장합니다.');
+  if (input.content.trim().length < 900) {
+    warnings.push('본문 분량이 짧습니다. 인터넷신문 기사로 보이려면 최소 900자 이상을 권장합니다.');
   }
 
   if (connectorCount < 2) {
     warnings.push('문장 간 연결어와 맥락 전환이 부족합니다. 다만/특히/이에/한편/따라서 등으로 흐름을 보강하세요.');
   }
 
-  if (!/(왜|배경|이유|흐름|변화|영향|과제|전망|기준|확인)/.test(input.content)) {
+  if (!/(왜|배경|이유|흐름|변화|영향|과제|전망|기준|확인|관계자|업계|소비자)/.test(input.content)) {
     warnings.push('사실 나열에 그칠 수 있습니다. 변화의 배경, 독자 영향, 향후 과제를 한 단락 이상 넣으세요.');
+  }
+
+  if (/\[(리드|배경|현장 맥락|독자 영향|전망과 과제|정리)\]/.test(input.content)) {
+    warnings.push('본문에 관리자용 구조 라벨이 포함되어 있습니다. 공개 기사에서는 자연스러운 문단형 보도문으로 정리하세요.');
   }
 
   return {
     ok: warnings.length === 0,
     paragraphCount: paragraphs.length,
-    hasSections,
+    hasSections: hasExplicitEditorialSections(input.content),
     connectorCount,
     warnings
   };
@@ -120,12 +124,12 @@ export function analyzeArticleStructure(input: {
 
 export function getArticleWritingTemplate(articleType = 'normal') {
   if (articleType === 'brand_interview') {
-    return `[리드]\n이 브랜드를 소개해야 하는 이유와 독자가 먼저 알아야 할 핵심을 2~3문장으로 쓴다.\n\n[브랜드 배경]\n업체가 어떤 지역·업종·고객층에서 활동하는지 설명한다.\n\n[운영 철학]\n대표자 또는 운영자의 기준, 고객을 대하는 방식, 서비스 원칙을 담는다.\n\n[현장 맥락]\n해당 업종에서 고객이 실제로 비교하는 기준과 불안을 설명한다.\n\n[독자 체크포인트]\n독자가 업체를 선택하기 전 확인하면 좋은 기준을 정리한다.\n\n[정리]\n과장 없이 브랜드의 의미와 향후 과제를 담백하게 마무리한다.`;
+    return `브랜드가 주목받는 배경을 먼저 제시한다. 광고 문구가 아니라 지역·업종·고객 변화 속에서 이 업체를 살펴볼 이유를 기사 첫 문단에 담는다.\n\n이후 업체의 설립 배경, 대표자의 운영 철학, 고객 응대 기준, 현장 사례를 자연스럽게 이어 쓴다. 직접 인용은 필요한 경우에만 사용하고, 과장된 최상급 표현은 피한다.\n\n마지막 문단에서는 독자가 업체를 선택하기 전 확인할 기준과 해당 업종의 변화 흐름을 정리한다.`;
   }
 
   if (articleType === 'press_release') {
-    return `[리드]\n발표의 핵심 사실을 육하원칙에 맞춰 2~3문장으로 정리한다.\n\n[발표 내용]\n기관·기업이 밝힌 주요 내용을 구체적으로 설명한다.\n\n[사업 배경]\n왜 이 발표가 나왔는지, 관련 시장·지역·독자 맥락을 설명한다.\n\n[향후 계획]\n후속 일정, 적용 범위, 기대 효과를 사실 중심으로 쓴다.\n\n[정리]\n독자가 확인해야 할 의미와 유의점을 덧붙인다.`;
+    return `발표 주체와 핵심 내용을 첫 문단에서 육하원칙에 맞춰 정리한다. 제공 자료를 그대로 옮기지 말고, 독자가 알아야 할 일정·대상·배경을 기사체로 재구성한다.\n\n중간 문단에서는 발표 배경, 적용 대상, 기대 효과, 현장에 미칠 영향을 설명한다. 확인되지 않은 홍보성 표현은 삭제하거나 완화한다.\n\n마지막 문단에서는 후속 일정, 유의 사항, 독자가 추가로 확인할 지점을 정리한다.`;
   }
 
-  return `[리드]\n기사의 핵심 변화 또는 문제 제기를 2~3문장으로 제시한다.\n\n[배경]\n이 이슈가 나온 배경, 최근 흐름, 독자가 알아야 할 기본 정보를 설명한다.\n\n[현장 맥락]\n업계·지역·소비자 관점에서 실제로 어떤 변화가 있는지 풀어쓴다.\n\n[독자 영향]\n이 내용이 소비자, 보호자, 학부모, 사업자에게 어떤 의미인지 설명한다.\n\n[전망과 과제]\n앞으로 확인할 점, 남은 과제, 주의할 표현을 담백하게 정리한다.`;
+  return `첫 문단은 기사 핵심을 바로 제시한다. 무엇이 달라졌고, 왜 독자가 알아야 하는지 2~3문장으로 압축한다.\n\n중간 문단에서는 배경과 현장 맥락을 이어 쓴다. 정책, 시장 흐름, 소비자 변화, 지역 상권의 반응을 근거 중심으로 설명한다.\n\n마지막 문단에서는 독자에게 미치는 영향과 향후 과제를 정리한다. 단정적 전망이나 광고성 표현은 피하고, 확인 가능한 사실과 신중한 분석으로 마무리한다.`;
 }
