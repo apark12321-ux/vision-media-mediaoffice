@@ -35,12 +35,12 @@ function SectionBlock({ title, href, articles }: { title: string; href: string; 
 }
 
 export default async function HomePage() {
-  const [articles, categories] = await Promise.all([getPublishedArticles(30), getCategories()]);
+  const [articles, categories] = await Promise.all([getPublishedArticles(40), getCategories()]);
   const topArticle = articles[0];
   const mainArticles = articles.slice(1, 5);
   const latestArticles = articles.slice(0, 8);
   const brandArticles = articles.filter((article) => article.article_type === 'brand_interview' || article.categories?.slug === 'brand-interview');
-  const normalCategories = categories.filter((category) => !['brand-interview'].includes(category.slug)).slice(0, 6);
+  const normalCategories = categories.filter((category) => !['brand-interview'].includes(category.slug));
 
   return (
     <main>
