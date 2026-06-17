@@ -1,0 +1,1 @@
+export default function SettingsPage() { return <div><h1 className="text-3xl font-black text-brand-navy">사이트 설정</h1><p className="mt-4 text-gray-600">운영사명, 제호, 사업자 정보, 등록 상태, 푸터 표시 항목은 2차 CRUD에서 확장합니다. 현재 DB 스키마와 푸터 표시 로직은 준비되어 있습니다.</p></div>; }

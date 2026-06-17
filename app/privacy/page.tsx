@@ -1,0 +1,3 @@
+export const metadata = { title: '개인정보처리방침' };
+export default function PrivacyPage() { return <Policy title="개인정보처리방침"><p>생활경제저널은 광고·제휴 문의 응대, 브랜드 인터뷰 제작, 계약 및 결제 확인, 기사 발행 및 납품, 고객 관리를 위해 필요한 개인정보를 수집합니다.</p><h2>수집 항목</h2><p>업체명, 대표자명, 담당자명, 전화번호, 이메일, 지역, 홈페이지/네이버 플레이스 URL, 문의 내용, 결제 및 상담 기록.</p><h2>보관 기간</h2><p>문의 미전환 고객 정보는 내부 기준에 따라 파기할 수 있으며, 계약 고객 정보는 법령상 보관 기간 또는 분쟁 대응 기간 동안 보관할 수 있습니다. 마케팅 수신 동의 정보는 동의 철회 시까지 보관할 수 있습니다.</p></Policy>; }
+function Policy({ title, children }: { title: string; children: React.ReactNode }) { return <main className="mx-auto max-w-3xl px-4 py-12"><h1 className="text-4xl font-black text-brand-navy">{title}</h1><div className="markdown-body mt-8 text-gray-700">{children}</div></main>; }
