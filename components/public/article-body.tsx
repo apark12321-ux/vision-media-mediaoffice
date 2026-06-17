@@ -60,12 +60,41 @@ const NEWS_TONE_REPLACEMENTS: Array<[RegExp, string]> = [
   [/덧붙였습니다(?=\.|!|\?|$)/g, '덧붙였다']
 ];
 
+const MARKDOWN_IMAGE_RE = /^!\[(?<caption>[^\]]*)\]\((?<url>\S+?)(?:\s+"(?<credit>[^"]+)")?\)$/;
+
+type RenderBlock =
+  | { type: 'heading'; text: string }
+  | { type: 'paragraph'; text: string }
+  | { type: 'image'; url: string; caption?: string; credit?: string };
+
 function isInternalLabel(label: string) {
   return INTERNAL_LABELS.has(label.trim());
 }
 
 function normalizeNewsTone(text: string) {
   return NEWS_TONE_REPLACEMENTS.reduce((result, [pattern, replacement]) => result.replace(pattern, replacement), text).trim();
+}
+
+function parseImageBlock(text: string): Extract<RenderBlock, { type: 'image' }> | null {
+  const match = text.trim().match(MARKDOWN_IMAGE_RE);
+  if (!match?.groups?.url) return null;
+
+  return {
+    type: 'image',
+    url: match.groups.url,
+    caption: match.groups.caption?.trim() || undefined,
+    credit: match.groups.credit?.trim() || undefined
+  };
+}
+
+function toRenderBlocks(lines: string[]): RenderBlock[] {
+  return lines.flatMap((line) => {
+    const image = parseImageBlock(line);
+    if (image) return [image];
+
+    const text = normalizeNewsTone(line);
+    return text ? [{ type: 'paragraph', text }] : [];
+  });
 }
 
 export function ArticleBody({
@@ -84,16 +113,16 @@ export function ArticleBody({
   const sections = buildEditorialSections({ title, content, summary, articleType, categoryName });
 
   const blocks = sections.flatMap((section) => {
-    const body = section.body.map(normalizeNewsTone).filter(Boolean);
-    if (!body.length) return [];
+    const bodyBlocks = toRenderBlocks(section.body);
+    if (!bodyBlocks.length) return [];
 
     if (isInternalLabel(section.heading)) {
-      return body.map((paragraph) => ({ type: 'paragraph' as const, text: paragraph }));
+      return bodyBlocks;
     }
 
     return [
       { type: 'heading' as const, text: section.heading },
-      ...body.map((paragraph) => ({ type: 'paragraph' as const, text: paragraph }))
+      ...bodyBlocks
     ];
   });
 
@@ -112,7 +141,22 @@ export function ArticleBody({
           );
         }
 
-        const isLead = index === 0;
+        if (block.type === 'image') {
+          return (
+            <figure key={`${block.type}-${index}`} className="my-9 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={block.url} alt={block.caption ?? '기사 이미지'} className="max-h-[520px] w-full object-cover" />
+              {(block.caption || block.credit) && (
+                <figcaption className="px-4 py-3 text-sm leading-6 text-slate-500">
+                  {block.caption}
+                  {block.credit ? <span className="ml-1">ⓒ {block.credit}</span> : null}
+                </figcaption>
+              )}
+            </figure>
+          );
+        }
+
+        const isLead = blocks.slice(0, index).every((item) => item.type !== 'paragraph');
         return (
           <p
             key={`${block.type}-${index}`}
