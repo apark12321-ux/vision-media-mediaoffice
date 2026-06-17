@@ -1,6 +1,8 @@
 import { buildEditorialSections } from '@/lib/editorial/article-style';
 
 const INTERNAL_LABELS = new Set([
+  '본문',
+  '기사 본문',
   '리드',
   '핵심 요약',
   '핵심 쟁점',
@@ -57,7 +59,7 @@ export function ArticleBody({
   });
 
   if (!blocks.length) {
-    return <p className="text-gray-600">본문이 준비 중입니다.</p>;
+    return <p className="text-gray-600">기사가 준비 중입니다.</p>;
   }
 
   return (
