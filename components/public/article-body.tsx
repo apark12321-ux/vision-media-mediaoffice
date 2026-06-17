@@ -6,7 +6,7 @@ export function ArticleBody({
   articleType,
   categoryName
 }: {
-  content: string | null;
+  content?: string | null;
   summary?: string | null;
   articleType?: string | null;
   categoryName?: string | null;
