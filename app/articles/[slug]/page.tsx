@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ArticleBody } from '@/components/public/article-body';
 import { ArticleShareTools } from '@/components/public/article-share-tools';
 import { ArticleVisualCard } from '@/components/public/article-visual-card';
 import { SponsoredNotice } from '@/components/public/sponsored-notice';
@@ -99,9 +100,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
           <div className="mt-8 border-b pb-10">
             <div className="mb-5 border-l-4 border-gray-950 pl-3 text-sm font-black text-gray-950">본문</div>
-            <div className="whitespace-pre-wrap leading-9 text-gray-800" style={{ fontSize: 'calc(1.08rem * var(--article-font-scale, 1))' }}>
-              {article.content}
-            </div>
+            <ArticleBody content={article.content} summary={article.summary} articleType={article.article_type} categoryName={categoryName} />
           </div>
 
           <footer className="mt-7 space-y-6">
