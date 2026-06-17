@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArticleShareTools } from '@/components/public/article-share-tools';
+import { ArticleVisualCard } from '@/components/public/article-visual-card';
 import { SponsoredNotice } from '@/components/public/sponsored-notice';
 import { getArticleBySlug, getPublishedArticles } from '@/lib/data/public';
 import { getSponsoredNotice, requiresSponsoredNotice } from '@/lib/compliance/sponsored-notice';
@@ -87,15 +88,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
           {notice && <SponsoredNotice notice={notice} />}
 
-          {article.thumbnail_url && (
-            <figure className="mt-8 text-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={article.thumbnail_url} alt={article.title} className="mx-auto max-h-[520px] max-w-full object-contain" />
-              <figcaption className="mt-2 text-left text-xs leading-5 text-gray-500">
-                ▲ {article.title} 관련 자료사진. 사진=생활경제저널 DB
-              </figcaption>
-            </figure>
-          )}
+          <ArticleVisualCard article={article} categoryName={categoryName} />
 
           {article.summary && (
             <section className="mt-7 border-y bg-gray-50 px-5 py-4">
