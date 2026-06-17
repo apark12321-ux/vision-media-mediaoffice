@@ -60,7 +60,7 @@ const NEWS_TONE_REPLACEMENTS: Array<[RegExp, string]> = [
   [/덧붙였습니다(?=\.|!|\?|$)/g, '덧붙였다']
 ];
 
-const MARKDOWN_IMAGE_RE = /^!\[(?<caption>[^\]]*)\]\((?<url>\S+?)(?:\s+"(?<credit>[^"]+)")?\)$/;
+const MARKDOWN_IMAGE_RE = /^!\[([^\]]*)\]\((\S+?)(?:\s+"([^"]+)")?\)$/;
 
 type RenderBlock =
   | { type: 'heading'; text: string }
@@ -77,13 +77,16 @@ function normalizeNewsTone(text: string) {
 
 function parseImageBlock(text: string): Extract<RenderBlock, { type: 'image' }> | null {
   const match = text.trim().match(MARKDOWN_IMAGE_RE);
-  if (!match?.groups?.url) return null;
+  const caption = match?.[1];
+  const url = match?.[2];
+  const credit = match?.[3];
+  if (!url) return null;
 
   return {
     type: 'image',
-    url: match.groups.url,
-    caption: match.groups.caption?.trim() || undefined,
-    credit: match.groups.credit?.trim() || undefined
+    url,
+    caption: caption?.trim() || undefined,
+    credit: credit?.trim() || undefined
   };
 }
 
