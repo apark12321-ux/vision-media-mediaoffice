@@ -91,7 +91,7 @@ function parseImageBlock(text: string): Extract<RenderBlock, { type: 'image' }> 
 }
 
 function toRenderBlocks(lines: string[]): RenderBlock[] {
-  return lines.flatMap((line) => {
+  return lines.flatMap<RenderBlock>((line): RenderBlock[] => {
     const image = parseImageBlock(line);
     if (image) return [image];
 
@@ -115,7 +115,7 @@ export function ArticleBody({
 }) {
   const sections = buildEditorialSections({ title, content, summary, articleType, categoryName });
 
-  const blocks = sections.flatMap((section) => {
+  const blocks = sections.flatMap<RenderBlock>((section): RenderBlock[] => {
     const bodyBlocks = toRenderBlocks(section.body);
     if (!bodyBlocks.length) return [];
 
