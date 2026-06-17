@@ -60,12 +60,19 @@ const NEWS_TONE_REPLACEMENTS: Array<[RegExp, string]> = [
   [/덧붙였습니다(?=\.|!|\?|$)/g, '덧붙였다']
 ];
 
-const MARKDOWN_IMAGE_RE = /^!\[([^\]]*)\]\((\S+?)(?:\s+"([^"]+)")?\)$/;
+const MARKDOWN_IMAGE_AT_START_RE = /^!\[([^\]]*)\]\((\S+?)(?:\s+"([^"]+)")?\)\s*(.*)$/;
+const MARKDOWN_IMAGE_ALT_ONLY_RE = /^!\[([^\]]*)\]\s*$/;
+const MARKDOWN_IMAGE_URL_ONLY_RE = /^\((\S+?)(?:\s+"([^"]+)")?\)\s*(.*)$/;
 
 type RenderBlock =
   | { type: 'heading'; text: string }
   | { type: 'paragraph'; text: string }
   | { type: 'image'; url: string; caption?: string; credit?: string };
+
+type ParsedImage = {
+  image: Extract<RenderBlock, { type: 'image' }>;
+  rest?: string;
+};
 
 function isInternalLabel(label: string) {
   return INTERNAL_LABELS.has(label.trim());
@@ -75,11 +82,7 @@ function normalizeNewsTone(text: string) {
   return NEWS_TONE_REPLACEMENTS.reduce((result, [pattern, replacement]) => result.replace(pattern, replacement), text).trim();
 }
 
-function parseImageBlock(text: string): Extract<RenderBlock, { type: 'image' }> | null {
-  const match = text.trim().match(MARKDOWN_IMAGE_RE);
-  const caption = match?.[1];
-  const url = match?.[2];
-  const credit = match?.[3];
+function createImageBlock(caption?: string, url?: string, credit?: string): Extract<RenderBlock, { type: 'image' }> | null {
   if (!url) return null;
 
   return {
@@ -90,14 +93,60 @@ function parseImageBlock(text: string): Extract<RenderBlock, { type: 'image' }> 
   };
 }
 
-function toRenderBlocks(lines: string[]): RenderBlock[] {
-  return lines.flatMap<RenderBlock>((line): RenderBlock[] => {
-    const image = parseImageBlock(line);
-    if (image) return [image];
+function parseInlineImage(text: string): ParsedImage | null {
+  const match = text.trim().match(MARKDOWN_IMAGE_AT_START_RE);
+  const image = createImageBlock(match?.[1], match?.[2], match?.[3]);
+  if (!image) return null;
 
-    const text = normalizeNewsTone(line);
-    return text ? [{ type: 'paragraph', text }] : [];
-  });
+  return {
+    image,
+    rest: match?.[4]?.trim() || undefined
+  };
+}
+
+function parseSplitImage(currentLine: string, nextLine?: string): ParsedImage | null {
+  const alt = currentLine.trim().match(MARKDOWN_IMAGE_ALT_ONLY_RE);
+  const url = nextLine?.trim().match(MARKDOWN_IMAGE_URL_ONLY_RE);
+  const image = createImageBlock(alt?.[1], url?.[1], url?.[2]);
+  if (!image) return null;
+
+  return {
+    image,
+    rest: url?.[3]?.trim() || undefined
+  };
+}
+
+function paragraphBlock(text: string): RenderBlock[] {
+  const normalized = normalizeNewsTone(text);
+  return normalized ? [{ type: 'paragraph', text: normalized }] : [];
+}
+
+function toRenderBlocks(lines: string[]): RenderBlock[] {
+  const blocks: RenderBlock[] = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index]?.trim();
+    if (!line) continue;
+
+    const inlineImage = parseInlineImage(line);
+    if (inlineImage) {
+      blocks.push(inlineImage.image);
+      if (inlineImage.rest) blocks.push(...paragraphBlock(inlineImage.rest));
+      continue;
+    }
+
+    const splitImage = parseSplitImage(line, lines[index + 1]);
+    if (splitImage) {
+      blocks.push(splitImage.image);
+      if (splitImage.rest) blocks.push(...paragraphBlock(splitImage.rest));
+      index += 1;
+      continue;
+    }
+
+    blocks.push(...paragraphBlock(line));
+  }
+
+  return blocks;
 }
 
 export function ArticleBody({
