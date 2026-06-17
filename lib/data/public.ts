@@ -122,8 +122,8 @@ const fallbackProducts: Product[] = [
 ];
 
 function mergeBySlug<T extends { slug: string }>(primary: T[], fallback: T[], limit?: number): T[] {
-  const seen = new Set(primary.map((item) => item.slug));
-  const merged = [...primary, ...fallback.filter((item) => !seen.has(item.slug))];
+  const fallbackSlugs = new Set(fallback.map((item) => item.slug));
+  const merged = [...fallback, ...primary.filter((item) => !fallbackSlugs.has(item.slug))];
   return typeof limit === 'number' ? merged.slice(0, limit) : merged;
 }
 
@@ -164,6 +164,9 @@ export async function getPublishedArticles(limit = 12): Promise<Article[]> {
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const fallbackArticle = fallbackArticles.find((article) => article.slug === slug) ?? null;
+  if (fallbackArticle) return fallbackArticle;
+
   try {
     const supabase = await createSupabaseServerClient();
     const { data } = await supabase
@@ -173,9 +176,9 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
       .eq('status', 'published')
       .is('deleted_at', null)
       .maybeSingle();
-    return (data as Article | null) ?? fallbackArticles.find((article) => article.slug === slug) ?? null;
+    return (data as Article | null) ?? null;
   } catch {
-    return fallbackArticles.find((article) => article.slug === slug) ?? null;
+    return null;
   }
 }
 
