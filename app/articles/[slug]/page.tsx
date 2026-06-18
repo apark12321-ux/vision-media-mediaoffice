@@ -11,6 +11,11 @@ import { formatDate } from '@/lib/utils/format';
 
 type PublishedArticle = Awaited<ReturnType<typeof getPublishedArticles>>[number];
 
+export async function generateStaticParams() {
+  const articles = await getPublishedArticles(200);
+  return articles.map((article) => ({ slug: article.slug }));
+}
+
 function articleTypeLabel(type: string | null | undefined) {
   if (type === 'brand_interview') return '브랜드 인터뷰';
   if (type === 'sponsored') return '제휴 콘텐츠';
@@ -20,7 +25,7 @@ function articleTypeLabel(type: string | null | undefined) {
 }
 
 function getArticleUrl(slug: string) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://example.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://edujournal.kr';
   return `${siteUrl}/articles/${slug}`;
 }
 
@@ -34,7 +39,7 @@ function uniqueBySlug(articles: PublishedArticle[]) {
 }
 
 function articleImage(article: PublishedArticle) {
-  return article.thumbnail_url ?? 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=900&q=80';
+  return article.thumbnail_url ?? 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80';
 }
 
 function SmallNewsItem({ article, index }: { article: PublishedArticle; index?: number }) {
@@ -111,7 +116,7 @@ function Sidebar({ latest, popular }: { latest: PublishedArticle[]; popular: Pub
       </section>
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-black tracking-[-0.04em] text-slate-950">뉴스룸 안내</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-500">생활경제저널은 자체 기획 기사와 권리 확인 이미지를 기준으로 발행한다.</p>
+        <p className="mt-2 text-sm leading-6 text-slate-500">에듀저널은 자체 기획 기사와 권리 확인 이미지를 기준으로 발행한다.</p>
         <Link href="/report" className="mt-4 inline-flex rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white hover:bg-brand-blue">기사제보</Link>
       </section>
     </aside>
@@ -136,7 +141,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
     <main className="bg-[#f5f7fa] py-6 md:py-8">
       <div className="mx-auto max-w-[1220px] px-4">
         <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-          <Link href="/" className="font-bold hover:text-brand-blue">생활경제저널</Link><span>/</span><Link href="/articles" className="hover:text-brand-blue">전체기사</Link><span>/</span>
+          <Link href="/" className="font-bold hover:text-brand-blue">에듀저널</Link><span>/</span><Link href="/articles" className="hover:text-brand-blue">전체기사</Link><span>/</span>
           {article.categories?.slug ? <Link href={`/category/${article.categories.slug}`} className="font-bold text-slate-800 hover:text-brand-blue">{categoryName}</Link> : <span className="font-bold text-slate-800">{categoryName}</span>}
         </div>
         <AdSenseSlot slot={process.env.NEXT_PUBLIC_ADSENSE_ARTICLE_TOP_SLOT} className="mb-5 rounded-2xl border border-slate-200 bg-white p-3" style={{ display: 'block', minHeight: 90 }} />
@@ -157,12 +162,12 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
               <div className="px-5 pb-8 pt-7 md:px-8"><ArticleBody content={article.content} summary={article.summary} articleType={article.article_type} categoryName={categoryName} /></div>
               <AdSenseSlot slot={process.env.NEXT_PUBLIC_ADSENSE_ARTICLE_BOTTOM_SLOT} className="mx-5 mb-6 rounded-2xl border border-slate-200 bg-white p-3 md:mx-8" style={{ display: 'block', minHeight: 120 }} />
               <footer className="border-t border-slate-100 bg-slate-50 px-5 py-6 md:px-8">
-                <div className="text-sm leading-7 text-slate-600"><p className="font-black text-slate-950">&lt;저작권자 ⓒ 생활경제저널 무단전재 및 재배포 금지&gt;</p><p className="mt-1">본 기사의 내용과 사진, 그래픽 등 모든 저작물은 생활경제저널의 허락 없이 전재·복사·배포할 수 없습니다.</p><p>기사제보 및 보도자료 접수: <Link href="/report" className="font-bold text-brand-blue">기사제보 바로가기</Link></p></div>
+                <div className="text-sm leading-7 text-slate-600"><p className="font-black text-slate-950">&lt;저작권자 ⓒ 에듀저널 무단전재 및 재배포 금지&gt;</p><p className="mt-1">본 기사의 내용과 사진, 그래픽 등 모든 저작물은 에듀저널의 허락 없이 전재·복사·배포할 수 없습니다.</p><p>기사제보 및 보도자료 접수: <Link href="/report" className="font-bold text-brand-blue">기사제보 바로가기</Link></p></div>
                 {article.tags?.length ? <div className="mt-5 flex flex-wrap gap-2">{article.tags.map((tag) => <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`} className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:border-brand-blue hover:text-brand-blue">#{tag}</Link>)}</div> : null}
               </footer>
             </article>
             <NewsSection title="관련기사" articles={fallbackRelatedArticles.slice(0, 6)} />
-            <NewsSection title="오늘의 주요 생활경제 뉴스" articles={sidebarArticles.slice(0, 6)} />
+            <NewsSection title="오늘의 주요 교육뉴스" articles={sidebarArticles.slice(0, 6)} />
             <AdSenseSlot slot={process.env.NEXT_PUBLIC_ADSENSE_INFEED_SLOT} className="rounded-2xl border border-slate-200 bg-white p-3" style={{ display: 'block', minHeight: 120 }} />
             <NewsSection title="뉴스 PICK" articles={sidebarArticles.slice(6, 12)} />
           </div>
