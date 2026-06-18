@@ -2,7 +2,15 @@ import { eduArticleSeeds } from '@/lib/data/edu-articles';
 import type { Article, Category, Product, SiteSettings } from '@/types/database';
 
 const fallbackSettings = {
-  id: 'fallback', site_name: '에듀저널', site_description: '교육 전문 인터넷매체입니다.', operator_name: 'Algo Partners', business_name: '알고파트너스', representative_name: '박예준', media_registration_status: 'unregistered', contact_email: 'contact@example.com', contact_phone: '000-0000-0000'
+  id: 'fallback',
+  site_name: '에듀저널',
+  site_description: '교육 전문 인터넷매체입니다.',
+  operator_name: 'Algo Partners',
+  business_name: '알고파트너스',
+  representative_name: '박예준',
+  media_registration_status: 'unregistered',
+  contact_email: 'contact@example.com',
+  contact_phone: '000-0000-0000'
 } as SiteSettings;
 
 export const fallbackCategories = [
@@ -34,7 +42,7 @@ function category(slug: string) {
 }
 
 function imageFor(slug: string) {
-  return categoryImages[slug] ?? categoryImages['lifelong-education'];
+  return categoryImages[slug] ?? categoryImages['lifelong-education']!;
 }
 
 function text(summary: string) {
@@ -43,11 +51,11 @@ function text(summary: string) {
 
 function toArticle(seed: (typeof eduArticleSeeds)[number]) {
   const cat = category(seed.categorySlug);
-  const photo = imageFor(seed.categorySlug);
+  const photo = seed.thumbnailUrl || imageFor(seed.categorySlug);
   return {
     id: seed.id,
     title: seed.title,
-    slug: seed.slug,
+    slug: seed.id,
     subtitle: seed.subtitle,
     summary: seed.summary,
     content: seed.content || text(seed.summary),
@@ -55,7 +63,7 @@ function toArticle(seed: (typeof eduArticleSeeds)[number]) {
     status: 'published',
     thumbnail_url: photo,
     image_caption: seed.imageCaption || `${cat.name} 관련 교육 현장 자료사진.`,
-    image_source_name: 'Unsplash',
+    image_source_name: seed.imageSourceName || 'Unsplash',
     image_source_url: photo,
     author_name: seed.author ?? '에듀저널 편집부',
     tags: seed.tags,
@@ -72,6 +80,14 @@ export async function getPublicSiteSettings(): Promise<SiteSettings> { return fa
 export async function getCategories(): Promise<Category[]> { return fallbackCategories; }
 export async function getArticles(limit?: number): Promise<Article[]> { return fallbackArticles.slice(0, limit ?? fallbackArticles.length); }
 export async function getPublishedArticles(limit?: number): Promise<Article[]> { return getArticles(limit); }
-export async function getArticlesByCategory(slug: string, limit?: number): Promise<Article[]> { const items = fallbackArticles.filter((article) => article.categories?.slug === slug); return items.slice(0, limit ?? items.length); }
-export async function getArticleBySlug(slug: string): Promise<Article | null> { return fallbackArticles.find((article) => article.slug === slug) ?? fallbackArticles[0] ?? null; }
+export async function getArticlesByCategory(slug: string, limit?: number): Promise<Article[]> {
+  const items = fallbackArticles.filter((article) => article.categories?.slug === slug);
+  return items.slice(0, limit ?? items.length);
+}
+export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const direct = fallbackArticles.find((article) => article.slug === slug);
+  if (direct) return direct;
+  const legacySeed = eduArticleSeeds.find((seed) => seed.slug === slug || seed.id === slug);
+  return legacySeed ? toArticle(legacySeed) : fallbackArticles[0] ?? null;
+}
 export async function getProducts(): Promise<Product[]> { return []; }
