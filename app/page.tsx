@@ -2,18 +2,6 @@ import Link from 'next/link';
 import { getPublishedArticles } from '@/lib/data/public';
 import { formatDate } from '@/lib/utils/format';
 
-const categoryLinks = [
-  ['전체', '/articles'],
-  ['평생교육', '/category/lifelong-education'],
-  ['자격증', '/category/career-dev'],
-  ['시니어교육', '/category/senior-education'],
-  ['에듀테크', '/category/edutech-ai'],
-  ['교육기관', '/category/edu-institution'],
-  ['인터뷰', '/category/brand-interview'],
-  ['오피니언', '/category/opinion'],
-  ['보도자료', '/category/press-release']
-] as const;
-
 const sections = [
   ['평생교육·HRD', 'lifelong-education'],
   ['자격증·자기계발', 'career-dev'],
@@ -123,15 +111,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <nav className="border-y border-slate-900 bg-white">
-        <div className="mx-auto flex max-w-[1120px] overflow-x-auto px-4">
-          {categoryLinks.map(([label, href]) => (
-            <Link key={href} href={href} className="shrink-0 border-r border-slate-200 px-4 py-3 text-[14px] font-black first:border-l hover:bg-slate-950 hover:text-white">{label}</Link>
-          ))}
-        </div>
-      </nav>
-
-      <section className="border-b bg-white">
+      <section className="border-y border-slate-900 bg-white">
         <div className="mx-auto flex max-w-[1120px] gap-3 px-4 py-2 text-[13px]">
           <span className="bg-slate-950 px-2 py-1 text-[11px] font-black text-white">속보</span>
           <div className="flex flex-wrap gap-x-5 gap-y-1">
