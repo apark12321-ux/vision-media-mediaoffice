@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="540" viewBox="0 0 320 540" role="img" aria-label="메가스터디교육 여름 집중반 배너">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#061a3d"/><stop offset="1" stop-color="#0b4ea2"/></linearGradient><linearGradient id="btn" x1="0" x2="1"><stop stop-color="#178bff"/><stop offset="1" stop-color="#0052cc"/></linearGradient></defs>
+  <rect width="320" height="540" rx="0" fill="url(#bg)"/>
+  <path d="M0 320 C72 290 140 308 320 262 L320 540 L0 540 Z" fill="#e9f4ff"/>
+  <text x="34" y="48" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#ffffff">메가스터디교육</text>
+  <text x="44" y="94" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#7dd3fc">결과로 증명하는 1등 교육</text>
+  <text x="36" y="142" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#ffffff">2026 수능·내신</text>
+  <text x="56" y="204" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="#9bdcff">여름</text>
+  <text x="32" y="268" font-family="Arial, sans-serif" font-size="42" font-weight="900" fill="#ffffff">집중반 모집</text>
+  <rect x="24" y="292" width="272" height="82" rx="18" fill="#ffffff" opacity="0.96"/>
+  <text x="47" y="326" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#0b4ea2">1:1 맞춤 학습</text>
+  <text x="47" y="354" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#0b4ea2">수능·내신 대비</text>
+  <text x="170" y="326" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#0b4ea2">철저한 관리</text>
+  <text x="170" y="354" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#0b4ea2">검증 강사진</text>
+  <circle cx="230" cy="430" r="68" fill="#cfeaff"/>
+  <text x="42" y="412" font-family="Arial, sans-serif" font-size="20" font-weight="900" fill="#06204a">여름 방학,</text>
+  <text x="42" y="440" font-family="Arial, sans-serif" font-size="22" font-weight="900" fill="#0b63ce">성적 도약의 기회</text>
+  <rect x="40" y="468" width="240" height="48" rx="24" fill="url(#btn)" stroke="#ffffff"/>
+  <text x="113" y="499" font-family="Arial, sans-serif" font-size="23" font-weight="900" fill="#ffffff">상담 신청</text>
+  <text x="232" y="499" font-family="Arial, sans-serif" font-size="24" fill="#ffffff">›</text>
+</svg>
