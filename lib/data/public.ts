@@ -3,6 +3,8 @@ import { eduArticleSeeds, type EduArticleSeed } from '@/lib/data/edu-articles';
 import { originalArticleSeeds, type OriginalArticleSeed } from '@/lib/data/original-articles';
 import type { Article, Category, Product, SiteSettings } from '@/types/database';
 
+const LOCAL_EDU_IMAGE = '/media/edu-lifelong.svg';
+
 const fallbackSettings: SiteSettings = {
   id: 'fallback',
   site_name: '에듀저널',
@@ -44,12 +46,25 @@ function hasOptionalFlag<T extends object, K extends PropertyKey>(input: T, key:
   return key in input;
 }
 
+function withSafeImage(article: Article): Article {
+  return {
+    ...article,
+    thumbnail_url: LOCAL_EDU_IMAGE,
+    image_source_name: '에듀저널 그래픽',
+    image_source_url: null,
+    image_author: null,
+    image_license: '자체 제작 이미지',
+    image_license_url: null,
+    visual_mode: 'photo'
+  };
+}
+
 function fallbackArticle(input: PublicArticleSeed): Article {
   const selectedCategory = category(input.categorySlug);
   const isSponsored = hasOptionalFlag(input, 'isSponsored') ? Boolean(input.isSponsored) : false;
   const sponsoredNotice = hasOptionalFlag(input, 'sponsoredNotice') ? String(input.sponsoredNotice ?? '') || null : null;
 
-  return {
+  return withSafeImage({
     id: input.id,
     title: input.title,
     slug: input.slug,
@@ -60,13 +75,13 @@ function fallbackArticle(input: PublicArticleSeed): Article {
     article_type: input.articleType ?? 'normal',
     status: 'published',
     editorial_status: 'published',
-    thumbnail_url: input.thumbnailUrl,
+    thumbnail_url: LOCAL_EDU_IMAGE,
     image_caption: input.imageCaption,
-    image_source_name: input.imageSourceName,
+    image_source_name: '에듀저널 그래픽',
     image_source_url: null,
     image_author: null,
-    image_license: 'Unsplash License',
-    image_license_url: 'https://unsplash.com/license',
+    image_license: '자체 제작 이미지',
+    image_license_url: null,
     visual_mode: 'photo',
     author_name: input.author ?? '에듀저널 편집부',
     client_id: null,
@@ -89,7 +104,7 @@ function fallbackArticle(input: PublicArticleSeed): Article {
     created_at: input.publishedAt,
     updated_at: input.publishedAt,
     categories: selectedCategory
-  };
+  });
 }
 
 function uniqueSeedsBySlug(seeds: PublicArticleSeed[]) {
@@ -150,7 +165,8 @@ export async function getArticles(limit?: number): Promise<Article[]> {
   try {
     const supabase = await createSupabaseServerClient();
     const { data } = await supabase.from('articles').select('*, categories(*)').eq('status', 'published').order('published_at', { ascending: false }).limit(limit ?? 100);
-    return data?.length ? mergeBySlug(data as Article[], fallbackArticles, limit) : fallbackArticles.slice(0, limit ?? fallbackArticles.length);
+    const safeData = (data as Article[] | null)?.map(withSafeImage) ?? [];
+    return safeData.length ? mergeBySlug(safeData, fallbackArticles, limit) : fallbackArticles.slice(0, limit ?? fallbackArticles.length);
   } catch {
     return fallbackArticles.slice(0, limit ?? fallbackArticles.length);
   }
@@ -171,7 +187,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
     const supabase = await createSupabaseServerClient();
     const { data } = await supabase.from('articles').select('*, categories(*)').eq('slug', slug).single();
-    return fallback ?? ((data as Article) || null);
+    return fallback ?? (data ? withSafeImage(data as Article) : null);
   } catch {
     return fallback;
   }
