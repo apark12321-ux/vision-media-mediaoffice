@@ -14,6 +14,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <p className="mt-3 text-gray-600">{category?.description ?? '선택한 카테고리의 기사 목록입니다.'}</p>
       </div>
 
+      <div className="mt-6 border border-amber-200 bg-amber-50 px-5 py-4">
+        <p className="text-[10px] font-black tracking-[0.2em] text-amber-700">PARTNER SAMPLE</p>
+        <p className="mt-1 text-lg font-black text-slate-950">교육기관 소개 샘플 영역</p>
+        <p className="mt-1 text-sm text-slate-600">강좌 안내와 교육원 소개를 배치할 수 있는 내부 검토용 영역입니다.</p>
+      </div>
+
       {articles.length ? (
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {articles.map((article) => <ArticleCard key={article.id} article={article} />)}
