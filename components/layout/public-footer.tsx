@@ -22,13 +22,15 @@ function optionalValue(value: string | null | undefined) {
   return normalized;
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function Dot() {
+  return <span className="mx-2 text-gray-300">|</span>;
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <p>
-      <span className="font-bold text-gray-800">{label}</span>
-      <span className="mx-1 text-gray-400">:</span>
-      <span>{value}</span>
-    </p>
+    <Link href={href} className="font-semibold text-gray-800 hover:text-gray-950">
+      {children}
+    </Link>
   );
 }
 
@@ -49,53 +51,56 @@ export async function PublicFooter() {
   const contactPhone = optionalValue(settings.contact_phone);
 
   return (
-    <footer className="mt-20 border-t border-gray-200 bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="border-b border-gray-200 pb-5">
-          <h2 className="text-lg font-black tracking-tight text-gray-950">{settings.site_name}</h2>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">Everyday Economy Journal</p>
+    <footer className="mt-20 border-t border-gray-300 bg-white">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-8 text-[12px] leading-6 text-gray-600 md:flex-row md:items-start md:gap-10 lg:text-[13px]">
+        <div className="min-w-[150px]">
+          <Link href="/" className="block text-2xl font-black leading-none tracking-tight text-gray-400">
+            {settings.site_name}
+          </Link>
+          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">Everyday Economy Journal</p>
         </div>
 
-        <nav className="flex flex-wrap gap-x-4 gap-y-2 border-b border-gray-200 py-4 text-xs font-semibold text-gray-700 md:text-sm">
-          <Link href="/about">회사소개</Link>
-          <Link href="/report">기사제보</Link>
-          <Link href="/advertise">광고·제휴문의</Link>
-          <Link href="/ethics">신문윤리강령</Link>
-          <Link href="/practice-code">신문윤리실천요강</Link>
-          <Link href="/youth-policy">청소년보호정책</Link>
-          <Link href="/terms">이용약관</Link>
-          <Link href="/privacy">개인정보처리방침</Link>
-          <Link href="/copyright-policy">저작권보호정책</Link>
-          <Link href="/sponsored-policy">제휴콘텐츠정책</Link>
-        </nav>
+        <div className="flex-1">
+          <nav className="flex flex-wrap items-center text-[13px] md:text-sm">
+            <FooterLink href="/terms">회원약관</FooterLink>
+            <Dot />
+            <FooterLink href="/privacy">개인정보처리방침</FooterLink>
+            <Dot />
+            <FooterLink href="/about">회사소개</FooterLink>
+            <Dot />
+            <FooterLink href="/advertise">광고·제휴 안내</FooterLink>
+            <Dot />
+            <FooterLink href="/youth-policy">청소년보호정책</FooterLink>
+            <Dot />
+            <FooterLink href="/report">기사제보</FooterLink>
+            <Dot />
+            <FooterLink href="/press-release">보도자료</FooterLink>
+            <Dot />
+            <FooterLink href="/search">기사검색</FooterLink>
+          </nav>
 
-        <div className="grid gap-6 border-b border-gray-200 py-6 text-[12px] leading-6 text-gray-600 md:grid-cols-2 lg:text-[13px]">
-          <section>
-            <h3 className="mb-2 text-sm font-black text-gray-950">매체 정보</h3>
-            <InfoRow label="제호" value={settings.site_name} />
-            <InfoRow label="발행인" value={publisherName} />
-            <InfoRow label="편집인" value={editorName} />
-            <InfoRow label="청소년보호책임자" value={youthManager} />
-            {isRegistered && settings.media_registration_number ? <InfoRow label="인터넷신문 등록번호" value={settings.media_registration_number} /> : null}
-            {isRegistered && settings.media_registered_at ? <InfoRow label="인터넷신문 등록일" value={settings.media_registered_at} /> : null}
-          </section>
-
-          <section>
-            <h3 className="mb-2 text-sm font-black text-gray-950">사업자 정보</h3>
-            <InfoRow label="상호" value={businessName} />
-            <InfoRow label="대표자" value={representativeName} />
-            <InfoRow label="사업자등록번호" value={businessRegistrationNumber} />
-            <InfoRow label="통신판매업신고번호" value={mailOrderRegistrationNumber} />
-            <InfoRow label="주소" value={address} />
-            <InfoRow label="개인정보보호책임자" value={privacyManager} />
-            {contactEmail ? <InfoRow label="이메일" value={contactEmail} /> : null}
-            {contactPhone ? <InfoRow label="전화" value={contactPhone} /> : null}
-          </section>
-        </div>
-
-        <div className="pt-4 text-xs leading-6 text-gray-500">
-          <p>{settings.site_name}의 모든 콘텐츠는 저작권법의 보호를 받으며, 무단 전재·복사·배포 및 재배포를 금지한다.</p>
-          <p className="mt-1 font-semibold text-gray-600">Copyright ⓒ {new Date().getFullYear()} {settings.site_name}. All rights reserved.</p>
+          <div className="mt-3 space-y-1 break-keep text-gray-600">
+            <p>
+              제호 {settings.site_name} <Dot /> 운영사 {businessName} <Dot /> 대표 {representativeName} <Dot /> 사업자등록번호 {businessRegistrationNumber} <Dot /> 통신판매업신고번호 {mailOrderRegistrationNumber}
+            </p>
+            <p>
+              주소 {address}
+              {contactPhone ? <><Dot /> 전화 {contactPhone}</> : null}
+              {contactEmail ? <><Dot /> 이메일 {contactEmail}</> : null}
+            </p>
+            <p>
+              발행인 {publisherName} <Dot /> 편집인 {editorName} <Dot /> 청소년보호책임자 {youthManager} <Dot /> 개인정보보호책임자 {privacyManager}
+              {isRegistered && settings.media_registration_number ? <><Dot /> 인터넷신문 등록번호 {settings.media_registration_number}</> : null}
+              {isRegistered && settings.media_registered_at ? <><Dot /> 등록일 {settings.media_registered_at}</> : null}
+            </p>
+            <p>
+              {settings.site_name}은 독자의 취재원 보호와 뉴스 이용자의 권리 보장을 위해 반론·정정보도 및 추후보도 요청 창구를 운영한다.
+            </p>
+            <p>
+              이 사이트의 모든 콘텐츠는 저작권법의 보호를 받으며 무단 전재, 복사, 배포 및 재배포를 금지한다.
+              <span className="ml-2 font-semibold text-gray-700">Copyright ⓒ {new Date().getFullYear()} {settings.site_name}. All rights reserved.</span>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
