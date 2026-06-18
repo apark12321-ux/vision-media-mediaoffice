@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { eduArticleSeeds, type EduArticleSeed } from '@/lib/data/edu-articles';
 import { originalArticleSeeds, type OriginalArticleSeed } from '@/lib/data/original-articles';
 import type { Article, Category, Product, SiteSettings } from '@/types/database';
 
@@ -33,12 +34,21 @@ export const fallbackCategories: Category[] = [
   { id: 'cat-press-release', name: '공지·보도', slug: 'press-release', description: '교육 관련 공지와 보도자료', sort_order: 9 }
 ];
 
+type PublicArticleSeed = OriginalArticleSeed | EduArticleSeed;
+
 function category(slug: string) {
   return fallbackCategories.find((item) => item.slug === slug) ?? fallbackCategories[0]!;
 }
 
-function fallbackArticle(input: OriginalArticleSeed): Article {
+function hasOptionalFlag<T extends object, K extends PropertyKey>(input: T, key: K): input is T & Record<K, unknown> {
+  return key in input;
+}
+
+function fallbackArticle(input: PublicArticleSeed): Article {
   const selectedCategory = category(input.categorySlug);
+  const isSponsored = hasOptionalFlag(input, 'isSponsored') ? Boolean(input.isSponsored) : false;
+  const sponsoredNotice = hasOptionalFlag(input, 'sponsoredNotice') ? String(input.sponsoredNotice ?? '') || null : null;
+
   return {
     id: input.id,
     title: input.title,
@@ -60,8 +70,8 @@ function fallbackArticle(input: OriginalArticleSeed): Article {
     visual_mode: 'photo',
     author_name: input.author ?? '에듀저널 편집부',
     client_id: null,
-    is_sponsored: input.isSponsored ?? false,
-    sponsored_notice: input.sponsoredNotice ?? null,
+    is_sponsored: isSponsored,
+    sponsored_notice: sponsoredNotice,
     tags: input.tags,
     seo_title: input.title,
     seo_description: input.summary,
@@ -82,7 +92,18 @@ function fallbackArticle(input: OriginalArticleSeed): Article {
   };
 }
 
-export const fallbackArticles: Article[] = originalArticleSeeds.map(fallbackArticle);
+function uniqueSeedsBySlug(seeds: PublicArticleSeed[]) {
+  const seen = new Set<string>();
+  return seeds.filter((seed) => {
+    if (seen.has(seed.slug)) return false;
+    seen.add(seed.slug);
+    return true;
+  });
+}
+
+const publicArticleSeeds = uniqueSeedsBySlug([...eduArticleSeeds, ...originalArticleSeeds]);
+
+export const fallbackArticles: Article[] = publicArticleSeeds.map(fallbackArticle);
 
 const fallbackProducts: Product[] = [
   {
