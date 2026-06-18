@@ -12,7 +12,7 @@ import { formatDate } from '@/lib/utils/format';
 type PublishedArticle = Awaited<ReturnType<typeof getPublishedArticles>>[number];
 
 export async function generateStaticParams() {
-  const articles = await getPublishedArticles(200);
+  const articles = await getPublishedArticles();
   return articles.map((article) => ({ slug: article.slug }));
 }
 
@@ -123,57 +123,52 @@ function Sidebar({ latest, popular }: { latest: PublishedArticle[]; popular: Pub
   );
 }
 
-export default async function ArticleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [article, latestArticles] = await Promise.all([getArticleBySlug(slug), getPublishedArticles(80)]);
+  const article = await getArticleBySlug(slug);
   if (!article) notFound();
 
-  const categoryName = article.categories?.name ?? '미분류';
-  const notice = requiresSponsoredNotice(article.article_type, article.is_sponsored) ? getSponsoredNotice(article.article_type, article.sponsored_notice) : null;
-  const sidebarArticles = uniqueBySlug(latestArticles.filter((item) => item.slug !== article.slug));
-  const relatedArticles = sidebarArticles.filter((item) => item.categories?.slug === article.categories?.slug);
-  const fallbackRelatedArticles = relatedArticles.length ? relatedArticles : sidebarArticles;
-  const articleUrl = getArticleUrl(article.slug);
-  const inputDate = formatDate(article.published_at);
-  const updatedDate = formatDate(article.updated_at);
+  const all = uniqueBySlug(await getPublishedArticles());
+  const latest = all.filter((item) => item.slug !== article.slug).slice(0, 8);
+  const popular = all.filter((item) => item.slug !== article.slug).slice(3, 11);
+  const related = all.filter((item) => item.categories?.slug === article.categories?.slug && item.slug !== article.slug).slice(0, 4);
+  const sponsoredNotice = requiresSponsoredNotice(article) ? getSponsoredNotice(article.article_type) : null;
 
   return (
-    <main className="bg-[#f5f7fa] py-6 md:py-8">
-      <div className="mx-auto max-w-[1220px] px-4">
-        <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-          <Link href="/" className="font-bold hover:text-brand-blue">에듀저널</Link><span>/</span><Link href="/articles" className="hover:text-brand-blue">전체기사</Link><span>/</span>
-          {article.categories?.slug ? <Link href={`/category/${article.categories.slug}`} className="font-bold text-slate-800 hover:text-brand-blue">{categoryName}</Link> : <span className="font-bold text-slate-800">{categoryName}</span>}
-        </div>
-        <AdSenseSlot slot={process.env.NEXT_PUBLIC_ADSENSE_ARTICLE_TOP_SLOT} className="mb-5 rounded-2xl border border-slate-200 bg-white p-3" style={{ display: 'block', minHeight: 90 }} />
-        <div className="grid gap-6 lg:grid-cols-[56px_minmax(0,720px)_320px] xl:grid-cols-[64px_minmax(0,760px)_330px]">
-          <ReaderRail />
-          <div className="min-w-0 space-y-7">
-            <article className="border border-slate-200 bg-white shadow-sm">
-              <header className="px-5 pb-5 pt-6 md:px-8 md:pt-8">
-                <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-black"><span className="text-brand-blue">{categoryName}</span><span className="text-slate-300">|</span><span className="text-slate-500">{articleTypeLabel(article.article_type)}</span>{article.is_sponsored && <span className="rounded-full bg-brand-gold/15 px-2.5 py-1 text-brand-gold">제휴표시</span>}</div>
-                <h1 className="text-[24px] font-black leading-[1.32] tracking-[-0.04em] text-slate-950 md:text-[29px] lg:text-[31px]">{article.title}</h1>
-                {article.subtitle && <p className="mt-3 text-[15px] leading-7 tracking-[-0.02em] text-slate-500 md:text-base">{article.subtitle}</p>}
-                <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-slate-100 py-3 text-[13px] text-slate-500"><p><span className="font-bold text-slate-900">{article.author_name ?? '편집부'}</span> 기자</p><p>입력 {inputDate}</p><p>수정 {updatedDate}</p><p>{categoryName}</p></div>
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3"><Link href="/report" className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 hover:border-brand-blue hover:text-brand-blue">기사제보</Link><ArticleShareTools title={article.title} url={articleUrl} /></div>
-              </header>
-              {notice && <div className="px-5 md:px-8"><SponsoredNotice notice={notice} /></div>}
-              <div className="px-5 md:px-8"><ArticleVisualCard article={article} categoryName={categoryName} /></div>
-              {article.summary && <section className="mx-5 mt-6 border-l-4 border-brand-blue bg-slate-50 px-5 py-4 md:mx-8"><h2 className="mb-1 text-xs font-black text-brand-blue">핵심 요약</h2><p className="text-[15px] leading-7 text-slate-700">{article.summary}</p></section>}
-              <div className="px-5 pb-8 pt-7 md:px-8"><ArticleBody content={article.content} summary={article.summary} articleType={article.article_type} categoryName={categoryName} /></div>
-              <AdSenseSlot slot={process.env.NEXT_PUBLIC_ADSENSE_ARTICLE_BOTTOM_SLOT} className="mx-5 mb-6 rounded-2xl border border-slate-200 bg-white p-3 md:mx-8" style={{ display: 'block', minHeight: 120 }} />
-              <footer className="border-t border-slate-100 bg-slate-50 px-5 py-6 md:px-8">
-                <div className="text-sm leading-7 text-slate-600"><p className="font-black text-slate-950">&lt;저작권자 ⓒ 에듀저널 무단전재 및 재배포 금지&gt;</p><p className="mt-1">본 기사의 내용과 사진, 그래픽 등 모든 저작물은 에듀저널의 허락 없이 전재·복사·배포할 수 없습니다.</p><p>기사제보 및 보도자료 접수: <Link href="/report" className="font-bold text-brand-blue">기사제보 바로가기</Link></p></div>
-                {article.tags?.length ? <div className="mt-5 flex flex-wrap gap-2">{article.tags.map((tag) => <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`} className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:border-brand-blue hover:text-brand-blue">#{tag}</Link>)}</div> : null}
-              </footer>
-            </article>
-            <NewsSection title="관련기사" articles={fallbackRelatedArticles.slice(0, 6)} />
-            <NewsSection title="오늘의 주요 교육뉴스" articles={sidebarArticles.slice(0, 6)} />
-            <AdSenseSlot slot={process.env.NEXT_PUBLIC_ADSENSE_INFEED_SLOT} className="rounded-2xl border border-slate-200 bg-white p-3" style={{ display: 'block', minHeight: 120 }} />
-            <NewsSection title="뉴스 PICK" articles={sidebarArticles.slice(6, 12)} />
+    <div className="bg-white">
+      <AdSenseSlot slot={process.env.NEXT_PUBLIC_ADSENSE_ARTICLE_TOP_SLOT} className="mx-auto my-4 max-w-5xl border-y border-slate-100 py-3" style={{ display: 'block', minHeight: 90 }} />
+      <main className="mx-auto grid max-w-[1180px] gap-8 px-4 py-6 lg:grid-cols-[56px_minmax(0,760px)_320px] xl:grid-cols-[64px_minmax(0,780px)_330px]">
+        <ReaderRail />
+        <article className="min-w-0">
+          <nav className="mb-5 text-xs font-bold text-slate-400">
+            <Link href="/" className="hover:text-brand-blue">홈</Link>
+            <span className="mx-2">/</span>
+            <Link href={`/category/${article.categories?.slug ?? ''}`} className="hover:text-brand-blue">{article.categories?.name ?? '뉴스'}</Link>
+          </nav>
+          <div className="border-b border-slate-200 pb-6">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-brand-blue/10 px-3 py-1 text-xs font-black text-brand-blue">{article.categories?.name ?? '교육뉴스'}</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">{articleTypeLabel(article.article_type)}</span>
+            </div>
+            <h1 className="text-[24px] font-black leading-[1.22] tracking-[-0.06em] text-slate-950 md:text-[29px] lg:text-[31px]">{article.title}</h1>
+            {article.subtitle ? <p className="mt-4 text-base leading-7 text-slate-600 md:text-lg">{article.subtitle}</p> : null}
+            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
+              <span>{article.author_name ?? '에듀저널 편집부'}</span>
+              <span>입력 {formatDate(article.published_at)}</span>
+            </div>
           </div>
-          <Sidebar latest={sidebarArticles.slice(0, 8)} popular={sidebarArticles.slice(3, 12)} />
-        </div>
-      </div>
-    </main>
+          {sponsoredNotice ? <SponsoredNotice notice={sponsoredNotice} className="mt-6" /> : null}
+          <ArticleVisualCard article={article} className="mt-6" />
+          <ArticleBody content={article.content ?? ''} className="mt-8" />
+          <ArticleShareTools url={getArticleUrl(article.slug)} title={article.title} className="mt-10" />
+          <AdSenseSlot slot={process.env.NEXT_PUBLIC_ADSENSE_ARTICLE_BOTTOM_SLOT} className="mt-8 border-y border-slate-100 py-3" style={{ display: 'block', minHeight: 120 }} />
+          <div className="mt-12 space-y-10">
+            <NewsSection title="관련 기사" articles={related} />
+            <NewsSection title="주요 교육뉴스" articles={latest.slice(0, 8)} />
+          </div>
+        </article>
+        <Sidebar latest={latest} popular={popular} />
+      </main>
+    </div>
   );
 }
