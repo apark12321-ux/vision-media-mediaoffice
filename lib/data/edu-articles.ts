@@ -15,52 +15,160 @@ export type EduArticleSeed = {
   imageSourceName: string;
 };
 
-const img = '';
+type CategorySeed = {
+  slug: string;
+  prefix: string;
+  label: string;
+  tags: string[];
+  focus: string;
+  subjects: string[];
+  angles: string[];
+};
 
-function slugify(title: string) {
-  return title.toLowerCase().replace(/[^a-z0-9가-힣\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80);
+const START_DATE = '2026-05-15';
+const END_DATE = '2026-06-19';
+
+const categories: CategorySeed[] = [
+  {
+    slug: 'lifelong-education',
+    prefix: 'life',
+    label: '평생교육·HRD',
+    tags: ['평생교육', 'HRD', '성인학습'],
+    focus: '성인학습 지원 체계',
+    subjects: ['평생학습 바우처', '지역 평생학습관', '직무 전환 교육', '성인 문해교육', '야간·주말 과정', '재직자 학습지원'],
+    angles: ['정책 중심으로 이동', '운영 투명성 요구 확대', '상담 체계 중요성 부각', '학습 지속률 관리 필요', '지역 교육기관 경쟁력 강화', '수료 이후 연계 과제']
+  },
+  {
+    slug: 'career-dev',
+    prefix: 'career',
+    label: '자격증·자기계발',
+    tags: ['자격증', '자기계발', '직무교육'],
+    focus: '자격증과 직무역량 교육',
+    subjects: ['AI 활용 실무 과정', '전직 준비 과정', '직장인 야간 자격증반', '데이터 문해력 교육', '디지털 문서 자동화', '부업 준비 과정'],
+    angles: ['실무형 교육 선호 증가', '과정 선택 기준 변화', '수료증보다 활용성 중시', '단기 과정 문의 증가', '직무 전환 수요 확대', '학습비 대비 효과 검토']
+  },
+  {
+    slug: 'senior-education',
+    prefix: 'senior',
+    label: '시니어·실버교육',
+    tags: ['시니어교육', '실버교육', '디지털문해'],
+    focus: '시니어 디지털 생활역량',
+    subjects: ['스마트폰 활용 교육', '금융앱 안전 교육', '건강정보 접근 교육', '은퇴 후 강사 과정', '중장년 커뮤니티 학습', '디지털 민원 서비스 교육'],
+    angles: ['생활역량 중심으로 확장', '사회참여 교육 수요 증가', '안전 교육 필요성 부각', '강사양성 관심 확대', '가족 돌봄 부담 완화 기대', '지역 복지기관 연계 강화']
+  },
+  {
+    slug: 'edutech-ai',
+    prefix: 'ai',
+    label: '에듀테크·AI',
+    tags: ['에듀테크', 'AI교육', '원격교육'],
+    focus: 'AI 기반 학습관리',
+    subjects: ['AI 튜터', '학습분석 대시보드', '원격 강의 운영', '자동 피드백 도구', '디지털 교재', '학습자 이탈 예측'],
+    angles: ['개인화 학습 관리 강화', '운영 설계가 성패 좌우', '기술보다 학습지원 중요', '교강사 업무 부담 완화', '데이터 기반 상담 확산', '교육 품질 관리 기준 변화']
+  },
+  {
+    slug: 'wellness-life',
+    prefix: 'well',
+    label: '웰니스·인문학',
+    tags: ['웰니스', '인문학', '교양교육'],
+    focus: '생활습관과 인문교양 교육',
+    subjects: ['마음건강 강좌', '수면·식습관 교육', '관계 회복 프로그램', '인문교양 독서모임', '명상과 글쓰기', '생애설계 교양 과정'],
+    angles: ['실천형 과정으로 진화', '중장년 수요 증가', '회복 중심 교육 주목', '커뮤니티형 학습 확대', '일상 관리 교육 필요', '교육과 상담의 경계 확장']
+  },
+  {
+    slug: 'edu-institution',
+    prefix: 'inst',
+    label: '교육기관 탐방',
+    tags: ['교육기관탐방', '교육원운영', '교육기관'],
+    focus: '교육기관 운영 사례',
+    subjects: ['평생교육원 운영 사례', '원격교육기관 상담 체계', '교육원 환불 기준', '학습지원 시스템', '수료 관리 프로세스', '교육기관 홍보 콘텐츠'],
+    angles: ['운영 신뢰 설명이 핵심', '콘텐츠보다 관리체계 평가', '수강 전 확인 정보 증가', '상담 응대 품질 중요', '기관 소개 콘텐츠 변화', '학습자 관리 기준 강화']
+  },
+  {
+    slug: 'interview-people',
+    prefix: 'people',
+    label: '명사 인터뷰',
+    tags: ['인터뷰', '교육전문가', '현장강사'],
+    focus: '교육 현장 인물 인터뷰',
+    subjects: ['평생교육 강사', 'HRD 컨설턴트', '시니어 교육 전문가', '에듀테크 기획자', '교육기관 운영자', '학습상담 전문가'],
+    angles: ['지식 전달보다 지속 지원 강조', '현장 경험의 콘텐츠화', '학습자 이해가 경쟁력', '교육자의 역할 재정의', '지역 기반 교육 가치 조명', '실무형 교육 철학 소개']
+  },
+  {
+    slug: 'opinion',
+    prefix: 'opinion',
+    label: '오피니언',
+    tags: ['오피니언', '교육칼럼', '기고'],
+    focus: '교육 현안과 칼럼',
+    subjects: ['성인학습 정책', '자격증 시장', '시니어 학습권', 'AI 교육 윤리', '지역 교육 격차', '교육기관 신뢰'],
+    angles: ['제도보다 실행이 중요', '학습자 관점 전환 필요', '시장 확대와 품질 관리 병행', '공공성과 수익성 균형 요구', '지역 교육 생태계 재정비', '신뢰 가능한 정보 축적 필요']
+  },
+  {
+    slug: 'press-release',
+    prefix: 'press',
+    label: '공지·보도',
+    tags: ['보도자료', '공지', '교육소식'],
+    focus: '교육 관련 공지와 보도자료',
+    subjects: ['교육과정 모집 안내', '기관 업무협약', '세미나 개최', '신규 강좌 개설', '교육지원 사업 공고', '수강생 모집 소식'],
+    angles: ['지역 학습자 대상 안내', '운영 일정 공개', '신규 프로그램 확대', '참여기관 모집', '교육 정보 접근성 개선', '학습자 편의 강화']
+  }
+];
+
+function dateRangeDescending(start: string, end: string) {
+  const dates: string[] = [];
+  const cursor = new Date(`${end}T00:00:00+09:00`);
+  const first = new Date(`${start}T00:00:00+09:00`);
+
+  while (cursor >= first) {
+    dates.push(cursor.toISOString().slice(0, 10));
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return dates;
 }
 
-function body(summary: string, focus: string) {
-  return `${summary}\n\n교육 현장에서는 ${focus}을 둘러싼 관심이 커지고 있다. 학습자는 단순한 홍보 문구보다 과정의 운영 기준, 학습 목표, 상담 체계, 수료 이후 활용 가능성을 함께 확인하려는 경향을 보인다.\n\n교육기관도 이 변화에 맞춰 프로그램 안내 방식을 다시 정비하고 있다. 강의명과 수강료만 안내하는 방식으로는 충분하지 않으며, 강사 전문성, 학습 관리, 환불 기준, 사후 상담 여부까지 구체적으로 제시해야 신뢰를 얻을 수 있다.\n\n전문가들은 평생교육 시장이 양적 확대보다 질적 검증 단계로 이동하고 있다고 본다. 온라인 강의와 원격교육이 보편화되면서 누구나 과정을 만들 수 있는 환경이 됐지만, 학습자는 더 이상 강의 수만으로 기관을 판단하지 않는다.\n\n지역 기반 교육기관 입장에서는 콘텐츠의 신뢰성이 중요한 과제가 되고 있다. 실제 교육 과정이 어떤 직무 능력과 연결되는지, 학습자가 중도에 이탈하지 않도록 어떤 관리 체계를 제공하는지를 설명하는 것이 필요하다.\n\n에듀저널은 교육 정책과 자격제도, 시니어 교육, 에듀테크, 교육기관 운영 사례를 지속적으로 기록하며 학습자 중심의 교육 정보를 축적할 계획이다.`;
+function yyyymmdd(date: string) {
+  return date.replace(/-/g, '');
 }
 
-function article(id: string, categorySlug: string, title: string, subtitle: string, summary: string, date: string, tags: string[], focus: string, articleType: EduArticleSeed['articleType'] = 'normal'): EduArticleSeed {
+function dateLabel(date: string) {
+  const [, month, day] = date.split('-');
+  return `${Number(month)}월 ${Number(day)}일`;
+}
+
+function pick<T>(items: T[], index: number) {
+  return items[index % items.length]!;
+}
+
+function articleBody(category: CategorySeed, subject: string, angle: string, date: string) {
+  return `${dateLabel(date)} 기준 ${category.label} 분야에서는 ${subject}을 중심으로 한 논의가 이어지고 있다. ${angle} 흐름이 뚜렷해지면서 교육기관과 학습자 모두 과정 선택 기준을 더 세밀하게 살펴보는 분위기다.\n\n교육 현장 관계자들은 ${category.focus}이 단순한 홍보 문구가 아니라 실제 운영 품질을 설명하는 핵심 요소가 됐다고 본다. 과정명, 수강료, 수료증 발급 여부만으로는 충분하지 않으며 강사 전문성, 학습 목표, 상담 체계, 환불 기준, 수료 이후 활용 가능성까지 함께 확인하려는 수요가 늘고 있다.\n\n특히 성인 학습자는 시간을 쪼개 교육에 참여하는 경우가 많다. 따라서 강의 콘텐츠 자체뿐 아니라 출석 관리, 과제 피드백, 학습 상담, 진도 점검처럼 중도 이탈을 줄이는 장치가 중요해졌다. 교육기관이 이 부분을 명확하게 제시할수록 학습자의 신뢰를 얻기 쉽다.\n\n지역 교육기관 입장에서는 정보 공개 방식도 달라지고 있다. 단순 모집 공고보다 과정 운영 배경, 대상 학습자, 기대 역량, 수료 후 연계 가능성을 설명하는 콘텐츠가 필요하다. 교육 수요가 늘어나는 만큼 검증 가능한 정보의 가치도 함께 커지고 있다.\n\n에듀저널은 ${category.label} 관련 정책, 현장 사례, 교육기관 운영 방식, 학습자 관점의 선택 기준을 지속적으로 정리해 교육 정보의 신뢰도를 높이는 데 초점을 맞출 계획이다.`;
+}
+
+function makeArticle(category: CategorySeed, date: string, dateIndex: number, categoryIndex: number): EduArticleSeed {
+  const subject = pick(category.subjects, dateIndex + categoryIndex);
+  const angle = pick(category.angles, dateIndex * 2 + categoryIndex);
+  const id = `${category.prefix}-${yyyymmdd(date)}`;
+  const isOpinion = category.slug === 'opinion';
+  const isPress = category.slug === 'press-release';
+
   return {
     id,
-    categorySlug,
-    title,
-    slug: slugify(title),
-    subtitle,
-    summary,
-    articleType,
-    tags,
-    publishedAt: date,
-    author: categorySlug === 'opinion' ? '에듀저널 칼럼니스트' : '에듀저널 편집부',
-    thumbnailUrl: img,
-    imageCaption: `${focus} 관련 에듀저널 자체 그래픽.`,
-    imageSourceName: '에듀저널',
-    content: body(summary, focus)
+    slug: id,
+    categorySlug: category.slug,
+    title: `${subject}, ${angle}`,
+    subtitle: `${category.label} 현장에서 확인한 ${dateLabel(date)} 교육 이슈`,
+    summary: `${category.label} 분야에서 ${subject}을 둘러싼 관심이 이어지고 있다. 교육기관은 운영 기준과 학습지원 체계를 더 구체적으로 제시해야 한다는 평가가 나온다.`,
+    content: articleBody(category, subject, angle, date),
+    articleType: isPress ? 'press_release' : 'normal',
+    tags: category.tags,
+    publishedAt: `${date}T${String(9 + categoryIndex).padStart(2, '0')}:00:00+09:00`,
+    author: isOpinion ? '에듀저널 칼럼니스트' : '에듀저널 편집부',
+    thumbnailUrl: '',
+    imageCaption: `${category.label} 관련 교육 현장 자료사진.`,
+    imageSourceName: 'Unsplash'
   };
 }
 
-export const eduArticleSeeds: EduArticleSeed[] = [
-  article('edu-001', 'lifelong-education', 'K-평생학습 바우처 확대 논의…성인학습 수요가 정책 중심으로 이동한다', '직무 전환과 생애설계 수요가 커지며 평생교육 지원 체계의 실효성이 주요 과제로 떠올랐다', '성인학습 수요가 직무교육과 생활역량 교육 전반으로 확산되면서 평생학습 바우처와 지역 교육 지원정책의 역할이 커지고 있다.', '2026-06-18T09:20:00+09:00', ['평생교육', 'HRD', '교육정책'], '평생학습 바우처'),
-  article('edu-002', 'lifelong-education', '지역 평생학습관, 강좌 수보다 사후 관리가 경쟁력으로 부상', '학습 지속률과 상담 체계가 교육기관 선택의 핵심 기준으로 바뀌고 있다', '지역 평생학습관이 단기 강좌 중심 운영에서 벗어나 학습 상담과 수료 이후 연계 프로그램을 강화하는 흐름을 보이고 있다.', '2026-06-17T11:30:00+09:00', ['평생학습관', '지역교육', '학습상담'], '지역 평생학습관'),
-  article('edu-003', 'career-dev', '직장인 자격증 수요 재편…AI 활용 실무 과정 문의 늘었다', '단순 스펙보다 현장에서 바로 쓰는 직무 역량 과정이 주목받고 있다', '직장인 자기계발 시장에서 AI 활용, 데이터 문해력, 디지털 문서 자동화처럼 실무 적용도가 높은 과정이 관심을 받고 있다.', '2026-06-16T15:00:00+09:00', ['자격증', '직무교육', 'AI활용'], '직장인 자격증'),
-  article('edu-004', 'career-dev', '전직 준비생이 확인해야 할 교육 과정 기준, 수강료보다 목표 직무 적합성', '환급 여부와 수료증보다 실제 직무 전환 가능성을 따지는 수요가 늘고 있다', '전직과 부업을 준비하는 성인 학습자들이 교육 과정을 선택할 때 과정명보다 커리큘럼의 직무 적합성과 결과 활용 가능성을 확인하고 있다.', '2026-06-15T10:10:00+09:00', ['전직교육', '자기계발', '직무전환'], '전직 교육'),
-  article('edu-005', 'senior-education', '시니어 교육, 여가 강좌에서 디지털 생활역량 중심으로 확장', '스마트폰 활용, 금융앱, 건강관리 정보 접근 교육의 필요성이 커지고 있다', '시니어 교육 시장이 취미와 여가 중심에서 디지털 생활역량과 사회참여 교육으로 확대되고 있다.', '2026-06-14T09:40:00+09:00', ['시니어교육', '디지털역량', '실버교육'], '시니어 디지털 교육'),
-  article('edu-006', 'senior-education', '은퇴 후 강사 과정 관심 증가…경험을 교육 콘텐츠로 바꾸는 방법 주목', '제2의 커리어를 준비하는 중장년층에게 강사양성 과정이 새로운 선택지로 떠오르고 있다', '은퇴 이후 자신의 전문성과 경험을 교육 콘텐츠로 전환하려는 중장년층이 늘면서 강사양성 과정의 수요가 확대되고 있다.', '2026-06-13T14:25:00+09:00', ['강사양성', '은퇴설계', '중장년교육'], '은퇴 후 강사 과정'),
-  article('edu-007', 'edutech-ai', 'AI 튜터 도입한 원격교육, 개인화 학습 관리가 핵심 변수로', '에듀테크 기술은 강의 자동화보다 학습자의 이해도 추적과 피드백에 집중되고 있다', '원격교육 시장에서 AI 튜터와 학습분석 기술이 확산되면서 개인별 진도 관리와 피드백 체계가 교육 품질의 기준으로 떠오르고 있다.', '2026-06-12T16:10:00+09:00', ['에듀테크', 'AI튜터', '원격교육'], 'AI 튜터'),
-  article('edu-008', 'edutech-ai', '메타버스 강의실보다 중요한 것, 학습자 이탈을 줄이는 운영 설계', '새로운 플랫폼보다 출석 관리, 과제 피드백, 상담 동선의 완성도가 성패를 가른다', '온라인 교육기관들이 실시간 강의 도구를 도입하고 있지만 학습자 유지율을 높이는 운영 설계가 더 중요하다는 지적이 나온다.', '2026-06-11T13:00:00+09:00', ['원격강의', '메타버스교육', '학습관리'], '메타버스 강의실'),
-  article('edu-009', 'wellness-life', '웰니스 교육, 건강정보를 넘어 생활습관 설계 과정으로 진화', '멘탈관리와 수면, 식습관, 관계 회복을 다루는 성인 교양 과정이 늘고 있다', '웰니스 교육이 단순 건강정보 전달을 넘어 생활습관을 점검하고 지속 가능한 루틴을 만드는 실천형 과정으로 확장되고 있다.', '2026-06-10T10:50:00+09:00', ['웰니스', '인문학', '생활교육'], '웰니스 교육'),
-  article('edu-010', 'wellness-life', '인문교양 강좌의 재발견…불안한 시대에 삶의 해석을 배우려는 수요', '성인 학습자는 지식보다 관점과 대화를 제공하는 교육 과정에 반응하고 있다', '인문교양 과정이 중장년층과 직장인 사이에서 다시 주목받고 있다. 삶과 관계, 일의 의미를 다루는 교육이 회복의 통로가 되고 있다.', '2026-06-09T14:45:00+09:00', ['인문교양', '성인학습', '웰니스'], '인문교양 강좌'),
-  article('edu-011', 'edu-institution', '교육기관 탐방 콘텐츠, 수강생 모집보다 운영 신뢰 설명이 먼저다', '교육원 소개는 시설 사진보다 커리큘럼, 상담, 환불, 수료 관리 기준을 보여줘야 한다', '교육기관을 소개하는 콘텐츠의 기준이 바뀌고 있다. 수강생은 화려한 홍보보다 실제 운영 체계와 학습 지원 방식을 확인하려는 경향을 보인다.', '2026-06-08T09:25:00+09:00', ['교육기관탐방', '교육원운영', '콘텐츠'], '교육기관 탐방'),
-  article('edu-012', 'edu-institution', '원격 평생교육기관, 콘텐츠보다 학습지원 체계가 평가 기준으로', '온라인 교육기관은 상담 응대와 환불 안내, 학습 이력 관리까지 함께 준비해야 한다', '원격 평생교육기관의 신뢰도는 강의 콘텐츠뿐 아니라 학습자 민원 대응과 운영 기준의 투명성에서 평가된다.', '2026-06-07T15:15:00+09:00', ['원격평생교육', '교육기관', '운영관리'], '원격 평생교육기관'),
-  article('edu-013', 'interview-people', '평생교육 현장의 강사들, 지식 전달보다 학습 지속을 돕는 역할로 이동', '명사 인터뷰 코너는 교육 전문가와 현장 강사의 철학을 기록하는 지면으로 운영된다', '평생교육 현장에서 강사의 역할이 단순한 지식 전달을 넘어 학습자의 지속과 실천을 돕는 조력자로 확장되고 있다.', '2026-06-04T11:20:00+09:00', ['명사인터뷰', '강사', '평생교육'], '평생교육 강사', 'brand_interview'),
-  article('edu-014', 'interview-people', '교육 전문가가 말하는 성인학습의 조건, 짧고 명확하며 반복 가능해야 한다', '직장인과 시니어 학습자를 위한 과정 설계 원칙이 교육기관 운영의 기준이 되고 있다', '성인학습 과정은 긴 강의보다 짧은 단위의 반복 학습과 실천 과제가 중요하다는 현장 의견이 확산되고 있다.', '2026-06-03T13:40:00+09:00', ['교육전문가', '성인학습', '인터뷰'], '성인학습 설계', 'brand_interview'),
-  article('edu-015', 'opinion', '100세 시대의 교육은 선택이 아니라 생활 인프라다', '평생교육은 취미 활동을 넘어 지역사회와 경제활동을 연결하는 기본 장치로 봐야 한다', '고령화와 산업 전환이 동시에 진행되는 사회에서 평생교육은 개인의 선택을 넘어 생활 인프라로 인식될 필요가 있다.', '2026-06-02T09:00:00+09:00', ['오피니언', '100세시대', '평생교육'], '100세 시대 교육'),
-  article('edu-016', 'opinion', 'AI 시대의 교육기관은 콘텐츠보다 신뢰를 먼저 설계해야 한다', '자동화가 쉬워질수록 교육기관의 설명 책임과 학습자 보호 장치가 중요해진다', 'AI 도구가 교육 콘텐츠 제작을 빠르게 바꾸고 있지만 교육기관의 본질은 신뢰와 책임 있는 운영 체계에 있다는 지적이다.', '2026-05-29T16:30:00+09:00', ['AI교육', '오피니언', '교육신뢰'], 'AI 시대 교육기관'),
-  article('edu-017', 'press-release', '평생학습 지원사업 공모 일정 공개…지역 교육기관 준비 본격화', '지자체와 민간 교육기관은 대상자 모집과 과정 운영 기준을 조기 점검해야 한다', '평생학습 지원사업 공모 일정이 공개되면서 지역 교육기관의 프로그램 준비와 홍보 계획 수립이 본격화되고 있다.', '2026-05-28T10:00:00+09:00', ['보도자료', '평생학습', '지역교육'], '평생학습 지원사업', 'press_release'),
-  article('edu-018', 'press-release', '디지털 문해교육 자료 배포 확대…현장 활용 기대', '시니어와 취약계층을 위한 생활형 디지털 교육 콘텐츠가 지역 교육 현장으로 확산될 전망이다', '디지털 문해교육 자료 배포가 확대되면서 지역 교육기관과 평생학습관의 실무형 교육 운영에 도움이 될 것으로 보인다.', '2026-05-27T10:00:00+09:00', ['보도자료', '디지털문해', '시니어교육'], '디지털 문해교육', 'press_release')
-];
+const dates = dateRangeDescending(START_DATE, END_DATE);
+
+export const eduArticleSeeds: EduArticleSeed[] = dates.flatMap((date, dateIndex) =>
+  categories.map((category, categoryIndex) => makeArticle(category, date, dateIndex, categoryIndex))
+);
