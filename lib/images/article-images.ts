@@ -28,7 +28,6 @@ function localImage(label: string): ArticleImageDisplay {
     url: LOCAL_EDU_IMAGE,
     caption: `▲ ${label} 관련 에듀저널 자료 이미지.`,
     sourceName: '에듀저널',
-    sourceUrl: undefined,
     license: '자체 제작',
     isFallback: true
   };
@@ -42,14 +41,15 @@ export function getFallbackArticleImage(categorySlug?: string | null, categoryNa
 export function getArticleImageForDisplay(article: Article): ArticleImageDisplay {
   const isLocal = article.thumbnail_url?.startsWith('/');
   if (isLocal) {
-    return {
+    const image: ArticleImageDisplay = {
       url: article.thumbnail_url!,
       caption: article.image_caption || `▲ ${article.title} 관련 에듀저널 자료 이미지.`,
       sourceName: article.image_source_name || '에듀저널',
-      sourceUrl: article.image_source_url || undefined,
       license: article.image_license || '자체 제작',
       isFallback: false
     };
+    if (article.image_source_url) image.sourceUrl = article.image_source_url;
+    return image;
   }
 
   return getFallbackArticleImage(article.categories?.slug, article.categories?.name);
