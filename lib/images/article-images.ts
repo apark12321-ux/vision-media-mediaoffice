@@ -9,88 +9,106 @@ export type ArticleImageDisplay = {
   isFallback: boolean;
 };
 
+const unsplash = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
+
 const categoryFallbackImages: Record<string, ArticleImageDisplay> = {
-  'life-economy': {
-    url: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 생활경제 관련 자료사진. 출처=Unsplash.',
+  'lifelong-education': {
+    url: unsplash('photo-1524178232363-1fb2b075b655'),
+    caption: '▲ 평생교육·HRD 관련 교육 현장 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
-  'local-business': {
-    url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 지역상권 관련 자료사진. 출처=Unsplash.',
+  'career-dev': {
+    url: unsplash('photo-1434030216411-0b793f4b4173'),
+    caption: '▲ 자격증·자기계발 관련 학습 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
-  education: {
-    url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 교육·학원 관련 자료사진. 출처=Unsplash.',
+  'senior-education': {
+    url: unsplash('photo-1573497019940-1c28c88b4f3e'),
+    caption: '▲ 시니어·실버교육 관련 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
-  'senior-care': {
-    url: 'https://images.unsplash.com/photo-1581579438747-104c53d7fbc4?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 시니어·요양 관련 자료사진. 출처=Unsplash.',
+  'edutech-ai': {
+    url: unsplash('photo-1488590528505-98d2b5aba04b'),
+    caption: '▲ 에듀테크·AI 교육 관련 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
-  'health-beauty': {
-    url: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 건강·뷰티 관련 자료사진. 출처=Unsplash.',
+  'wellness-life': {
+    url: unsplash('photo-1516321318423-f06f85e504b3'),
+    caption: '▲ 웰니스·인문학 교육 관련 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
-  'startup-franchise': {
-    url: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 창업·프랜차이즈 관련 자료사진. 출처=Unsplash.',
+  'edu-institution': {
+    url: unsplash('photo-1523050854058-8df90110c9f1'),
+    caption: '▲ 교육기관 탐방 관련 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
-  'brand-interview': {
-    url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 브랜드 인터뷰 관련 자료사진. 출처=Unsplash.',
+  'interview-people': {
+    url: unsplash('photo-1551836022-d5d88e9218df'),
+    caption: '▲ 교육 전문가 인터뷰 관련 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
   opinion: {
-    url: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 오피니언 관련 자료사진. 출처=Unsplash.',
+    url: unsplash('photo-1495020689067-958852a7765e'),
+    caption: '▲ 오피니언·칼럼 관련 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
   'press-release': {
-    url: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 보도자료 관련 자료사진. 출처=Unsplash.',
+    url: unsplash('photo-1557804506-669a67965ba0'),
+    caption: '▲ 공지·보도자료 관련 자료사진. 출처=Unsplash.',
+    sourceName: 'Unsplash',
+    sourceUrl: 'https://unsplash.com/',
+    license: 'Unsplash License',
+    isFallback: true
+  },
+  education: {
+    url: unsplash('photo-1509062522246-3755977927d7'),
+    caption: '▲ 교육 관련 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   },
   default: {
-    url: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80',
-    caption: '▲ 생활경제저널 기사 관련 자료사진. 출처=Unsplash.',
+    url: unsplash('photo-1524178232363-1fb2b075b655'),
+    caption: '▲ 에듀저널 기사 관련 교육 현장 자료사진. 출처=Unsplash.',
     sourceName: 'Unsplash',
     sourceUrl: 'https://unsplash.com/',
     license: 'Unsplash License',
     isFallback: true
   }
 };
+
+function isUsableImageUrl(url?: string | null) {
+  if (!url) return false;
+  if (url.startsWith('http://')) return false;
+  if (url.startsWith('https://images.unsplash.com/') || url.startsWith('https://images.pexels.com/')) return true;
+  if (url.startsWith('https://') && url.includes('.supabase.co/')) return true;
+  return false;
+}
 
 export function getFallbackArticleImage(categorySlug?: string | null, categoryName?: string | null): ArticleImageDisplay {
   if (categorySlug && categoryFallbackImages[categorySlug]) return categoryFallbackImages[categorySlug];
@@ -104,10 +122,10 @@ export function getFallbackArticleImage(categorySlug?: string | null, categoryNa
 }
 
 export function getArticleImageForDisplay(article: Article): ArticleImageDisplay {
-  if (article.thumbnail_url) {
-    const sourceName = article.image_source_name || '생활경제저널 DB';
+  if (isUsableImageUrl(article.thumbnail_url)) {
+    const sourceName = article.image_source_name || '에듀저널 DB';
     return {
-      url: article.thumbnail_url,
+      url: article.thumbnail_url!,
       caption: article.image_caption || `▲ ${article.title} 관련 자료사진. 출처=${sourceName}.`,
       sourceName,
       sourceUrl: article.image_source_url || undefined,
