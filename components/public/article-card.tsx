@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Article } from '@/types/database';
+import { getArticleImageForDisplay } from '@/lib/images/article-images';
 import { formatDate } from '@/lib/utils/format';
 
 function getTypeLabel(article: Article) {
@@ -12,11 +13,16 @@ function getTypeLabel(article: Article) {
 
 export function ArticleCard({ article, compact = false }: { article: Article; compact?: boolean }) {
   const typeLabel = getTypeLabel(article);
+  const image = getArticleImageForDisplay(article);
 
   return (
     <Link href={`/articles/${article.slug}`} className="group block border-b pb-4 transition last:border-b-0 hover:text-brand-blue md:border md:bg-white md:p-4 md:hover:border-brand-blue">
       <div className="flex gap-4 md:block">
-        <div className={`${compact ? 'h-20 w-28 md:h-28 md:w-full' : 'h-28 w-36 md:h-40 md:w-full'} flex shrink-0 items-center justify-center bg-slate-100 text-xs font-bold text-slate-400`}>생활경제저널</div>
+        <div className={`${compact ? 'h-20 w-28 md:h-28 md:w-full' : 'h-28 w-36 md:h-40 md:w-full'} relative shrink-0 overflow-hidden bg-slate-100`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image.url} alt={article.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+          {image.isFallback && <span className="absolute bottom-1 left-1 bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-white">자료사진</span>}
+        </div>
         <div className="min-w-0 flex-1 md:mt-3">
           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
             <span className="font-bold text-brand-gold">{article.categories?.name ?? '미분류'}</span>

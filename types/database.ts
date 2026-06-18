@@ -2,6 +2,7 @@ export type MediaRegistrationStatus = 'unregistered' | 'preparing' | 'registered
 export type ArticleType = 'normal' | 'brand_interview' | 'sponsored' | 'advertorial' | 'press_release';
 export type ArticleStatus = 'draft' | 'review' | 'published' | 'archived';
 export type ArticleVisualMode = 'auto' | 'text_card' | 'photo' | 'none';
+export type EditorialStatus = 'planning' | 'writing' | 'review' | 'approved' | 'scheduled' | 'published' | 'archived';
 
 export interface SiteSettings {
   id: string;
@@ -43,6 +44,7 @@ export interface Article {
   category_id?: string | null;
   article_type: ArticleType;
   status: ArticleStatus;
+  editorial_status?: EditorialStatus | null;
   thumbnail_url?: string | null;
   image_caption?: string | null;
   image_source_name?: string | null;
@@ -58,6 +60,14 @@ export interface Article {
   tags?: string[] | null;
   seo_title?: string | null;
   seo_description?: string | null;
+  source_urls?: string[] | null;
+  source_note?: string | null;
+  fact_checked?: boolean | null;
+  is_imported_archive?: boolean | null;
+  archive_source_label?: string | null;
+  original_published_at?: string | null;
+  imported_at?: string | null;
+  scheduled_at?: string | null;
   compliance_checked?: boolean;
   forbidden_terms_detected?: string[] | null;
   published_at?: string | null;
