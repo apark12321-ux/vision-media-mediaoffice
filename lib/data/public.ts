@@ -17,11 +17,55 @@ export const fallbackCategories = [
   { id: 'cat-press-release', name: '공지·보도', slug: 'press-release', description: '교육 관련 공지와 보도자료', sort_order: 9 }
 ] as Category[];
 
-const colors: Record<string, string> = { 'lifelong-education': 'dbeafe', 'career-dev': 'fef3c7', 'senior-education': 'd1fae5', 'edutech-ai': 'e0e7ff', 'wellness-life': 'ffe4e6', 'edu-institution': 'cffafe', 'interview-people': 'ede9fe', opinion: 'f1f5f9', 'press-release': 'ecfccb' };
-function category(slug: string) { return fallbackCategories.find((item) => item.slug === slug) ?? fallbackCategories[0]!; }
-function thumb(slug: string) { const bg = colors[slug] ?? 'f8fafc'; return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='640'%3E%3Crect width='960' height='640' fill='%23${bg}'/%3E%3Ccircle cx='210' cy='230' r='90' fill='%23ffffff' opacity='.8'/%3E%3Crect x='360' y='190' width='360' height='44' rx='22' fill='%230f172a' opacity='.85'/%3E%3Crect x='360' y='270' width='460' height='28' rx='14' fill='%23334155' opacity='.42'/%3E%3Crect x='360' y='330' width='320' height='28' rx='14' fill='%23334155' opacity='.25'/%3E%3C/svg%3E`; }
-function text(summary: string) { return `${summary}\n\n교육기관과 학습자는 과정 선택 기준을 더 세밀하게 살펴보고 있다. 운영 기준, 상담 체계, 수료 이후 활용 가능성, 학습 관리 방식이 함께 검토된다.\n\n에듀저널은 교육 정책, 자격제도, 시니어 교육, 에듀테크와 교육기관 운영 사례를 지속적으로 다룬다.`; }
-function toArticle(seed: (typeof eduArticleSeeds)[number]) { const cat = category(seed.categorySlug); return { id: seed.id, title: seed.title, slug: seed.slug, subtitle: seed.subtitle, summary: seed.summary, content: seed.content || text(seed.summary), article_type: seed.articleType ?? 'normal', status: 'published', thumbnail_url: thumb(seed.categorySlug), author_name: seed.author ?? '에듀저널 편집부', tags: seed.tags, published_at: seed.publishedAt, created_at: seed.publishedAt, updated_at: seed.publishedAt, categories: cat } as Article; }
+const categoryImages: Record<string, string> = {
+  'lifelong-education': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+  'career-dev': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
+  'senior-education': 'https://images.unsplash.com/photo-1573497491208-6b1acb260507?auto=format&fit=crop&w=1200&q=80',
+  'edutech-ai': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
+  'wellness-life': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80',
+  'edu-institution': 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+  'interview-people': 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=80',
+  opinion: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80',
+  'press-release': 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80'
+};
+
+function category(slug: string) {
+  return fallbackCategories.find((item) => item.slug === slug) ?? fallbackCategories[0]!;
+}
+
+function imageFor(slug: string) {
+  return categoryImages[slug] ?? categoryImages['lifelong-education'];
+}
+
+function text(summary: string) {
+  return `${summary}\n\n교육기관과 학습자는 과정 선택 기준을 더 세밀하게 살펴보고 있다. 운영 기준, 상담 체계, 수료 이후 활용 가능성, 학습 관리 방식이 함께 검토된다.\n\n에듀저널은 교육 정책, 자격제도, 시니어 교육, 에듀테크와 교육기관 운영 사례를 지속적으로 다룬다.`;
+}
+
+function toArticle(seed: (typeof eduArticleSeeds)[number]) {
+  const cat = category(seed.categorySlug);
+  const photo = imageFor(seed.categorySlug);
+  return {
+    id: seed.id,
+    title: seed.title,
+    slug: seed.slug,
+    subtitle: seed.subtitle,
+    summary: seed.summary,
+    content: seed.content || text(seed.summary),
+    article_type: seed.articleType ?? 'normal',
+    status: 'published',
+    thumbnail_url: photo,
+    image_caption: seed.imageCaption || `${cat.name} 관련 교육 현장 자료사진.`,
+    image_source_name: 'Unsplash',
+    image_source_url: photo,
+    author_name: seed.author ?? '에듀저널 편집부',
+    tags: seed.tags,
+    published_at: seed.publishedAt,
+    created_at: seed.publishedAt,
+    updated_at: seed.publishedAt,
+    categories: cat
+  } as Article;
+}
+
 export const fallbackArticles = eduArticleSeeds.map(toArticle);
 
 export async function getPublicSiteSettings(): Promise<SiteSettings> { return fallbackSettings; }
