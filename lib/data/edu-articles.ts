@@ -15,39 +15,17 @@ export type EduArticleSeed = {
   imageSourceName: string;
 };
 
-const img = '/media/edu-lifelong.svg';
+const img = '';
 
 function slugify(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9가-힣\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 80);
 }
 
 function body(summary: string, focus: string) {
-  return `${summary}
-
-교육 현장에서는 ${focus}을 둘러싼 관심이 커지고 있다. 학습자는 단순한 홍보 문구보다 과정의 운영 기준, 학습 목표, 상담 체계, 수료 이후 활용 가능성을 함께 확인하려는 경향을 보인다.
-
-교육기관도 이 변화에 맞춰 프로그램 안내 방식을 다시 정비하고 있다. 강의명과 수강료만 안내하는 방식으로는 충분하지 않으며, 강사 전문성, 학습 관리, 환불 기준, 사후 상담 여부까지 구체적으로 제시해야 신뢰를 얻을 수 있다.
-
-![${focus} 관련 교육 현장 자료사진.](${img} "에듀저널")
-
-전문가들은 평생교육 시장이 양적 확대보다 질적 검증 단계로 이동하고 있다고 본다. 온라인 강의와 원격교육이 보편화되면서 누구나 과정을 만들 수 있는 환경이 됐지만, 학습자는 더 이상 강의 수만으로 기관을 판단하지 않는다.
-
-지역 기반 교육기관 입장에서는 콘텐츠의 신뢰성이 중요한 과제가 되고 있다. 실제 교육 과정이 어떤 직무 능력과 연결되는지, 학습자가 중도에 이탈하지 않도록 어떤 관리 체계를 제공하는지를 설명하는 것이 필요하다.
-
-에듀저널은 교육 정책과 자격제도, 시니어 교육, 에듀테크, 교육기관 운영 사례를 지속적으로 기록하며 학습자 중심의 교육 정보를 축적할 계획이다.`;
+  return `${summary}\n\n교육 현장에서는 ${focus}을 둘러싼 관심이 커지고 있다. 학습자는 단순한 홍보 문구보다 과정의 운영 기준, 학습 목표, 상담 체계, 수료 이후 활용 가능성을 함께 확인하려는 경향을 보인다.\n\n교육기관도 이 변화에 맞춰 프로그램 안내 방식을 다시 정비하고 있다. 강의명과 수강료만 안내하는 방식으로는 충분하지 않으며, 강사 전문성, 학습 관리, 환불 기준, 사후 상담 여부까지 구체적으로 제시해야 신뢰를 얻을 수 있다.\n\n전문가들은 평생교육 시장이 양적 확대보다 질적 검증 단계로 이동하고 있다고 본다. 온라인 강의와 원격교육이 보편화되면서 누구나 과정을 만들 수 있는 환경이 됐지만, 학습자는 더 이상 강의 수만으로 기관을 판단하지 않는다.\n\n지역 기반 교육기관 입장에서는 콘텐츠의 신뢰성이 중요한 과제가 되고 있다. 실제 교육 과정이 어떤 직무 능력과 연결되는지, 학습자가 중도에 이탈하지 않도록 어떤 관리 체계를 제공하는지를 설명하는 것이 필요하다.\n\n에듀저널은 교육 정책과 자격제도, 시니어 교육, 에듀테크, 교육기관 운영 사례를 지속적으로 기록하며 학습자 중심의 교육 정보를 축적할 계획이다.`;
 }
 
-function article(
-  id: string,
-  categorySlug: string,
-  title: string,
-  subtitle: string,
-  summary: string,
-  date: string,
-  tags: string[],
-  focus: string,
-  articleType: EduArticleSeed['articleType'] = 'normal'
-): EduArticleSeed {
+function article(id: string, categorySlug: string, title: string, subtitle: string, summary: string, date: string, tags: string[], focus: string, articleType: EduArticleSeed['articleType'] = 'normal'): EduArticleSeed {
   return {
     id,
     categorySlug,
@@ -60,7 +38,7 @@ function article(
     publishedAt: date,
     author: categorySlug === 'opinion' ? '에듀저널 칼럼니스트' : '에듀저널 편집부',
     thumbnailUrl: img,
-    imageCaption: `${focus} 관련 교육 현장 자료사진.`,
+    imageCaption: `${focus} 관련 에듀저널 자체 그래픽.`,
     imageSourceName: '에듀저널',
     content: body(summary, focus)
   };
