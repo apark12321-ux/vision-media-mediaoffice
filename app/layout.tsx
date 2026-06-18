@@ -6,10 +6,10 @@ import { PublicFooter } from '@/components/layout/public-footer';
 
 export const metadata: Metadata = {
   title: {
-    default: '생활경제저널 | Everyday Economy Journal',
-    template: '%s | 생활경제저널'
+    default: '에듀저널 | EDU JOURNAL',
+    template: '%s | 에듀저널'
   },
-  description: '생활경제, 지역상권, 교육, 시니어, 건강, 창업 현장의 브랜드와 사람을 기록하는 생활경제 전문 미디어입니다.'
+  description: '평생교육, 자격증, 시니어 학습, 에듀테크, 교육기관 정보를 다루는 교육 전문 인터넷매체입니다.'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
