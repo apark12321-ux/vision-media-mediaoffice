@@ -19,7 +19,15 @@ function Thumb({ article, ratio = 'aspect-[4/3]' }: { article?: Article; ratio?:
   return <img src={article?.thumbnail_url || image} alt={article?.title || '에듀저널'} className={`${ratio} w-full bg-slate-100 object-cover`} />;
 }
 
-function PartnerBox({ title, desc, dark = false }: { title: string; desc: string; dark?: boolean }) {
+function BannerAd({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
+  return (
+    <aside className={`overflow-hidden border border-slate-200 bg-white ${className}`} aria-label="광고 배너">
+      <img src={src} alt={alt} className="block h-full w-full object-cover" loading="lazy" />
+    </aside>
+  );
+}
+
+function TextPartnerBox({ title, desc, dark = false }: { title: string; desc: string; dark?: boolean }) {
   return (
     <div className={`${dark ? 'bg-slate-950 text-white' : 'bg-amber-50 text-slate-950'} border border-slate-200 p-4`}>
       <p className="text-[11px] font-black tracking-[0.22em] text-amber-500">PARTNER</p>
@@ -103,11 +111,7 @@ export default async function HomePage() {
             <h1 className="mt-1 text-5xl font-black tracking-[-0.08em] text-slate-800">에듀저널</h1>
             <p className="mt-1 text-[11px] font-bold tracking-[0.36em] text-slate-400">EDU JOURNAL</p>
           </Link>
-          <div className="w-full max-w-[520px] border border-amber-300 bg-amber-50 px-5 py-3 text-right">
-            <p className="text-[11px] font-black tracking-[0.22em] text-amber-600">PARTNER AREA</p>
-            <p className="text-lg font-black">평생교육·자격증 과정 안내</p>
-            <p className="text-xs text-slate-500">기관 소식 · 교육과정 · 인터뷰 문의 000-0000-0000</p>
-          </div>
+          <BannerAd src="/ads/daekyo-consulting.svg" alt="대교 평생교육 학습 컨설팅 광고" className="h-[94px] w-full max-w-[540px]" />
         </div>
       </section>
 
@@ -154,7 +158,7 @@ export default async function HomePage() {
         </div>
 
         <aside className="col-span-12 space-y-5 lg:col-span-4">
-          <PartnerBox dark title="교육기관 알림판" desc="기관 소식, 교육과정, 인터뷰를 한눈에 보여주는 우측 고정 영역입니다." />
+          <BannerAd src="/ads/megastudy-summer.svg" alt="메가스터디교육 여름 집중반 광고" className="h-[540px]" />
           <section className="border bg-white">
             <div className="border-b border-slate-900 px-4 py-2"><h2 className="text-[16px] font-black">많이 본 뉴스</h2></div>
             <div className="divide-y px-4">
@@ -166,14 +170,22 @@ export default async function HomePage() {
               ))}
             </div>
           </section>
-          <PartnerBox title="평생학습 안내 영역" desc="과정 소개, 기관 탐방, 교육 자료를 배치하는 보조 영역입니다." />
+          <BannerAd src="/ads/hackers-license.svg" alt="해커스 합격 전략 설명회 광고" className="h-[540px]" />
+          <BannerAd src="/ads/kyowon-consulting.svg" alt="교원 교육 상담 광고" className="h-[540px]" />
         </aside>
       </section>
 
-      <section className="mx-auto max-w-[1120px] px-4 pb-5"><PartnerBox title="EDU JOURNAL NOTICE" desc="교육기관 소식과 평생학습 정보를 묶어 보여주는 중앙 안내 영역입니다." /></section>
+      <section className="mx-auto max-w-[1120px] px-4 pb-5">
+        <BannerAd src="/ads/fastcampus-skillup.svg" alt="패스트캠퍼스 실무 스킬업 광고" className="h-[150px] md:h-[190px]" />
+      </section>
 
       <section className="mx-auto grid max-w-[1120px] gap-5 px-4 pb-10 md:grid-cols-2">
-        {sections.map(([title, slug]) => <SectionCard key={slug} title={title} slug={slug} articles={articles} />)}
+        {sections.map(([title, slug], index) => (
+          <div key={slug} className="space-y-5">
+            <SectionCard title={title} slug={slug} articles={articles} />
+            {index === 1 ? <BannerAd src="/ads/woongjin-ai.svg" alt="웅진씽크빅 AI 맞춤 학습 광고" className="h-[320px]" /> : null}
+          </div>
+        ))}
       </section>
     </main>
   );
