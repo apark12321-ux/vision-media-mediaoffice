@@ -19,7 +19,7 @@ export const fallbackCategories = [
 
 function category(slug: string) { return fallbackCategories.find((item) => item.slug === slug) ?? fallbackCategories[0]!; }
 function text(summary: string) { return `${summary}\n\n교육기관과 학습자는 과정 선택 기준을 더 세밀하게 살펴보고 있다. 운영 기준, 상담 체계, 수료 이후 활용 가능성, 학습 관리 방식이 함께 검토된다.\n\n에듀저널은 교육 정책, 자격제도, 시니어 교육, 에듀테크와 교육기관 운영 사례를 지속적으로 다룬다.`; }
-function toArticle(seed: (typeof eduArticleSeeds)[number]) { const cat = category(seed.categorySlug); return { id: seed.id, title: seed.title, slug: seed.slug, subtitle: seed.subtitle, summary: seed.summary, content: seed.content || text(seed.summary), article_type: seed.articleType ?? 'normal', status: 'published', thumbnail_url: null, author_name: seed.author ?? '에듀저널 편집부', tags: seed.tags, published_at: seed.publishedAt, created_at: seed.publishedAt, updated_at: seed.publishedAt, categories: cat } as Article; }
+function toArticle(seed: (typeof eduArticleSeeds)[number]) { const cat = category(seed.categorySlug); return { id: seed.id, title: seed.title, slug: seed.slug, subtitle: seed.subtitle, summary: seed.summary, content: seed.content || text(seed.summary), article_type: seed.articleType ?? 'normal', status: 'published', thumbnail_url: '/media/edu-lifelong.svg', author_name: seed.author ?? '에듀저널 편집부', tags: seed.tags, published_at: seed.publishedAt, created_at: seed.publishedAt, updated_at: seed.publishedAt, categories: cat } as Article; }
 export const fallbackArticles = eduArticleSeeds.map(toArticle);
 
 export async function getPublicSiteSettings(): Promise<SiteSettings> { return fallbackSettings; }
