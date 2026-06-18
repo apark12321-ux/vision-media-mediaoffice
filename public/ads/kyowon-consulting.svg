@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="540" viewBox="0 0 320 540" role="img" aria-label="교원 교육 상담 배너">
+  <rect width="320" height="540" fill="#ffffff"/>
+  <path d="M232 0 H320 V118 Q282 96 250 118 Q240 74 232 0" fill="#dc2626"/>
+  <text x="38" y="58" font-family="Arial, sans-serif" font-size="34" font-weight="900" fill="#111827">교원</text>
+  <text x="39" y="88" font-family="Arial, sans-serif" font-size="15" fill="#6b7280">사람의 가치를 키우는 교육</text>
+  <text x="40" y="164" font-family="Arial, sans-serif" font-size="46" font-weight="900" fill="#111827">교육</text>
+  <text x="146" y="164" font-family="Arial, sans-serif" font-size="46" font-weight="900" fill="#dc2626">상담</text>
+  <text x="40" y="204" font-family="Arial, sans-serif" font-size="20" fill="#4b5563">우리 아이의 가능성을</text>
+  <text x="40" y="234" font-family="Arial, sans-serif" font-size="20" fill="#4b5563">교원과 함께 키워주세요</text>
+  <g transform="translate(42 280)"><circle cx="24" cy="24" r="24" fill="#fee2e2"/><text x="13" y="31" font-family="Arial" font-size="20" font-weight="900" fill="#dc2626">1</text><text x="66" y="20" font-family="Arial" font-size="17" font-weight="900" fill="#dc2626">자녀 맞춤 프로그램</text><text x="66" y="47" font-family="Arial" font-size="14" fill="#374151">수준과 성향에 맞춘 학습 설계</text></g>
+  <g transform="translate(42 350)"><circle cx="24" cy="24" r="24" fill="#fee2e2"/><text x="13" y="31" font-family="Arial" font-size="20" font-weight="900" fill="#dc2626">2</text><text x="66" y="20" font-family="Arial" font-size="17" font-weight="900" fill="#111827">전문 선생님 관리</text><text x="66" y="47" font-family="Arial" font-size="14" fill="#374151">1:1 맞춤 지도와 관리</text></g>
+  <rect x="0" y="438" width="320" height="102" fill="#dc2626"/>
+  <text x="48" y="474" font-family="Arial, sans-serif" font-size="17" fill="#ffffff">우리 아이에게 꼭 맞는 교육 솔루션</text>
+  <rect x="48" y="492" width="224" height="42" rx="21" fill="#ffffff"/>
+  <text x="105" y="520" font-family="Arial, sans-serif" font-size="22" font-weight="900" fill="#dc2626">무료 상담</text>
+</svg>
