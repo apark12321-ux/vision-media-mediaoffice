@@ -16,7 +16,7 @@ function firstBodyImage(content: string) {
   const start = line.indexOf('](');
   const end = line.indexOf(')', start + 2);
   if (start < 0 || end < 0) return '';
-  return line.slice(start + 2, end).split(' ')[0] || '';
+  return (line.slice(start + 2, end).split(' ')[0] || '').replace('&amp;', '&').replace('"', '');
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
