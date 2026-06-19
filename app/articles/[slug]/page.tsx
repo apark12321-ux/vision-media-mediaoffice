@@ -1,6 +1,8 @@
 import { getArticleBySlug, getPublishedArticles } from '@/lib/data/public';
 import { formatDate } from '@/lib/utils/format';
 
+const ampEntity = '&' + 'amp;';
+
 export async function generateStaticParams() {
   const articles = await getPublishedArticles();
   return articles.map((article) => ({ slug: article.slug }));
@@ -16,7 +18,7 @@ function firstBodyImage(content: string) {
   const start = line.indexOf('](');
   const end = line.indexOf(')', start + 2);
   if (start < 0 || end < 0) return '';
-  return (line.slice(start + 2, end).split(' ')[0] || '').split('&amp;').join('&');
+  return (line.slice(start + 2, end).split(' ')[0] || '').split(ampEntity).join('&');
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
