@@ -23,24 +23,13 @@ function BannerAd({ src, alt, className = '' }: { src: string; alt: string; clas
   const isWide = className.includes('wide');
   const brand = src.includes('megastudy') ? '메가스터디교육' : src.includes('hackers') ? '해커스' : src.includes('kyowon') ? '교원' : src.includes('fastcampus') ? '패스트캠퍼스' : src.includes('woongjin') ? '웅진씽크빅' : '대교';
   const copy = src.includes('hackers') ? '자격증·어학 합격전략' : src.includes('fastcampus') ? 'AI·데이터 실무 스킬업' : src.includes('woongjin') ? 'AI 맞춤 학습 무료체험' : src.includes('kyowon') ? '자녀 맞춤 교육 상담' : src.includes('megastudy') ? '여름 집중반 모집' : '평생교육 컨설팅';
-  const photo = src.includes('hackers')
-    ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85'
-    : src.includes('fastcampus')
-      ? 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=85'
-      : src.includes('woongjin')
-        ? 'https://images.unsplash.com/photo-1596495578065-6e0763fa1178?auto=format&fit=crop&w=900&q=85'
-        : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=85';
-
   return (
     <aside className={`overflow-hidden border border-slate-200 bg-white shadow-sm ${className}`} aria-label={alt}>
-      <div className={`${isWide ? 'grid h-full grid-cols-[1fr_260px]' : 'flex h-full flex-col'} bg-slate-950 text-white`}>
-        <div className="p-4">
-          <p className="text-[10px] font-black tracking-[0.22em] text-amber-400">AD MOCKUP</p>
-          <p className="mt-1 text-sm font-black opacity-80">{brand}</p>
-          <h3 className={`${isWide ? 'text-2xl' : 'text-xl'} mt-2 font-black tracking-[-0.04em]`}>{copy}</h3>
-          <span className="mt-3 inline-flex rounded-full bg-amber-500 px-4 py-2 text-xs font-black text-white">상담 신청</span>
-        </div>
-        <img src={photo} alt="" className={`${isWide ? 'h-full' : 'min-h-0 flex-1'} w-full object-cover opacity-90`} loading="lazy" />
+      <div className="flex h-full flex-col justify-center bg-slate-950 px-4 py-3 text-white">
+        <p className="text-[10px] font-black tracking-[0.22em] text-amber-400">AD MOCKUP</p>
+        <p className="mt-1 text-sm font-black opacity-80">{brand}</p>
+        <h3 className={`${isWide ? 'text-2xl' : 'text-lg'} mt-1 font-black tracking-[-0.04em]`}>{copy}</h3>
+        <span className="mt-2 inline-flex w-fit rounded-full bg-amber-500 px-3 py-1.5 text-[11px] font-black text-white">상담 신청</span>
       </div>
     </aside>
   );
@@ -69,7 +58,6 @@ function SectionCard({ title, slug, articles }: { title: string; slug: string; a
   const filtered = articles.filter((article) => article.categories?.slug === slug);
   const list = filtered.length ? filtered : articles.slice(0, 6);
   const lead = list[0];
-
   return (
     <section className="border border-slate-200 bg-white">
       <div className="flex items-center justify-between border-b border-slate-900 px-4 py-2">
@@ -79,17 +67,8 @@ function SectionCard({ title, slug, articles }: { title: string; slug: string; a
       <div className="grid gap-4 p-4 md:grid-cols-[150px_1fr]">
         <Link href={`/articles/${lead?.slug || ''}`}><Thumb article={lead} /></Link>
         <div>
-          {lead ? (
-            <Link href={`/articles/${lead.slug}`}>
-              <h3 className="line-clamp-2 text-[17px] font-black leading-7 hover:text-amber-600">{lead.title}</h3>
-              <p className="mt-2 line-clamp-2 text-[13px] leading-6 text-slate-600">{lead.summary}</p>
-            </Link>
-          ) : null}
-          <div className="mt-3 space-y-1.5">
-            {list.slice(1, 6).map((article) => (
-              <Link key={article.id} href={`/articles/${article.slug}`} className="block text-[13px] font-bold leading-6 hover:text-amber-600">· {article.title}</Link>
-            ))}
-          </div>
+          {lead ? <Link href={`/articles/${lead.slug}`}><h3 className="line-clamp-2 text-[17px] font-black leading-7 hover:text-amber-600">{lead.title}</h3><p className="mt-2 line-clamp-2 text-[13px] leading-6 text-slate-600">{lead.summary}</p></Link> : null}
+          <div className="mt-3 space-y-1.5">{list.slice(1, 6).map((article) => <Link key={article.id} href={`/articles/${article.slug}`} className="block text-[13px] font-bold leading-6 hover:text-amber-600">· {article.title}</Link>)}</div>
         </div>
       </div>
     </section>
@@ -100,11 +79,7 @@ function CompactNewsBox({ title, articles }: { title: string; articles: Article[
   return (
     <section className="border bg-white p-4">
       <h2 className="border-b border-slate-900 pb-2 text-[16px] font-black">{title}</h2>
-      <div className="mt-2 space-y-2">
-        {articles.slice(0, 6).map((article) => (
-          <Link key={article.id} href={`/articles/${article.slug}`} className="block text-[13px] font-bold leading-6 hover:text-amber-600">· {article.title}</Link>
-        ))}
-      </div>
+      <div className="mt-2 space-y-2">{articles.slice(0, 6).map((article) => <Link key={article.id} href={`/articles/${article.slug}`} className="block text-[13px] font-bold leading-6 hover:text-amber-600">· {article.title}</Link>)}</div>
     </section>
   );
 }
@@ -118,17 +93,8 @@ export default async function HomePage() {
 
   return (
     <main className="bg-[#f4f4f4] text-slate-900">
-      <section className="border-b bg-white">
-        <div className="mx-auto flex max-w-[1120px] justify-between px-4 py-2 text-[12px] text-slate-500"><span>2026년 06월 18일 목요일</span><span>교육 전문 인터넷신문</span></div>
-      </section>
-
-      <section className="bg-white">
-        <div className="mx-auto flex max-w-[1120px] flex-col gap-4 px-4 py-6 md:flex-row md:items-end md:justify-between">
-          <Link href="/"><p className="text-[11px] font-bold tracking-[0.28em] text-slate-400">신속공정한 교육뉴스</p><h1 className="mt-1 text-5xl font-black tracking-[-0.08em] text-slate-800">에듀저널</h1><p className="mt-1 text-[11px] font-bold tracking-[0.36em] text-slate-400">EDU JOURNAL</p></Link>
-          <BannerAd src="/ads/daekyo-consulting.svg" alt="대교 평생교육 학습 컨설팅 광고" className="wide h-[96px] w-full max-w-[540px]" />
-        </div>
-      </section>
-
+      <section className="border-b bg-white"><div className="mx-auto flex max-w-[1120px] justify-between px-4 py-2 text-[12px] text-slate-500"><span>2026년 06월 18일 목요일</span><span>교육 전문 인터넷신문</span></div></section>
+      <section className="bg-white"><div className="mx-auto flex max-w-[1120px] flex-col gap-4 px-4 py-6 md:flex-row md:items-end md:justify-between"><Link href="/"><p className="text-[11px] font-bold tracking-[0.28em] text-slate-400">신속공정한 교육뉴스</p><h1 className="mt-1 text-5xl font-black tracking-[-0.08em] text-slate-800">에듀저널</h1><p className="mt-1 text-[11px] font-bold tracking-[0.36em] text-slate-400">EDU JOURNAL</p></Link><BannerAd src="/ads/daekyo-consulting.svg" alt="대교 평생교육 학습 컨설팅 광고" className="wide h-[80px] w-full max-w-[500px]" /></div></section>
       <section className="border-y border-slate-900 bg-white"><div className="mx-auto flex max-w-[1120px] gap-3 px-4 py-2 text-[13px]"><span className="bg-slate-950 px-2 py-1 text-[11px] font-black text-white">속보</span><div className="flex flex-wrap gap-x-5 gap-y-1">{articles.slice(0, 3).map((article) => <Link key={article.id} href={`/articles/${article.slug}`} className="hover:text-amber-600">{article.title}</Link>)}</div></div></section>
 
       <section className="mx-auto grid max-w-[1120px] grid-cols-12 gap-5 px-4 py-5">
@@ -139,18 +105,16 @@ export default async function HomePage() {
           </div>
           <div className="mt-5 grid gap-5 md:grid-cols-2"><NewsList title="최신 교육뉴스" articles={latest} /><NewsList title="편집국 추천" articles={articles.slice(15, 25)} /></div>
         </div>
-
         <aside className="col-span-12 space-y-4 lg:col-span-4">
-          <BannerAd src="/ads/megastudy-summer.svg" alt="메가스터디교육 여름 집중반 광고" className="h-[260px]" />
+          <BannerAd src="/ads/megastudy-summer.svg" alt="메가스터디교육 여름 집중반 광고" className="h-[128px]" />
           <CompactNewsBox title="많이 본 뉴스" articles={ranking} />
-          <BannerAd src="/ads/hackers-license.svg" alt="해커스 합격 전략 설명회 광고" className="h-[220px]" />
+          <BannerAd src="/ads/hackers-license.svg" alt="해커스 합격 전략 설명회 광고" className="h-[110px]" />
           <CompactNewsBox title="교육기관 뉴스" articles={articles.slice(25, 32)} />
-          <BannerAd src="/ads/kyowon-consulting.svg" alt="교원 교육 상담 광고" className="h-[200px]" />
+          <BannerAd src="/ads/kyowon-consulting.svg" alt="교원 교육 상담 광고" className="h-[110px]" />
         </aside>
       </section>
-
-      <section className="mx-auto max-w-[1120px] px-4 pb-5"><BannerAd src="/ads/fastcampus-skillup.svg" alt="패스트캠퍼스 실무 스킬업 광고" className="wide h-[132px] md:h-[150px]" /></section>
-      <section className="mx-auto grid max-w-[1120px] gap-5 px-4 pb-10 md:grid-cols-2">{sections.map(([title, slug], index) => <div key={slug} className="space-y-5"><SectionCard title={title} slug={slug} articles={articles} />{index === 1 ? <BannerAd src="/ads/woongjin-ai.svg" alt="웅진씽크빅 AI 맞춤 학습 광고" className="h-[220px]" /> : null}</div>)}</section>
+      <section className="mx-auto max-w-[1120px] px-4 pb-5"><BannerAd src="/ads/fastcampus-skillup.svg" alt="패스트캠퍼스 실무 스킬업 광고" className="wide h-[96px] md:h-[110px]" /></section>
+      <section className="mx-auto grid max-w-[1120px] gap-5 px-4 pb-10 md:grid-cols-2">{sections.map(([title, slug], index) => <div key={slug} className="space-y-5"><SectionCard title={title} slug={slug} articles={articles} />{index === 1 ? <BannerAd src="/ads/woongjin-ai.svg" alt="웅진씽크빅 AI 맞춤 학습 광고" className="h-[120px]" /> : null}</div>)}</section>
     </main>
   );
 }
