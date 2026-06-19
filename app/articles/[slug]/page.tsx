@@ -3,13 +3,16 @@ import { formatDate } from '@/lib/utils/format';
 
 type Block = { kind: 'text'; value: string } | { kind: 'image'; value: string };
 
+const fallbackImage = '/media/edu-lifelong.svg';
+
 export async function generateStaticParams() {
   const articles = await getPublishedArticles();
   return articles.map((article) => ({ slug: article.slug }));
 }
 
 function normalizeImageUrl(value: string) {
-  return value.replace('&amp;', '&').trim();
+  const url = value.replace('&amp;', '&').trim();
+  return url || fallbackImage;
 }
 
 function firstToken(value: string) {
@@ -31,13 +34,13 @@ function parseBody(content: string): Block[] {
       const start = line.indexOf('](');
       if (start > -1) {
         const inside = extractParenContent(line.slice(start + 1));
-        if (inside) blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(inside)) });
+        blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(inside)) });
         continue;
       }
       const next = lines[i + 1];
       if (next && next.charAt(0) === '(') {
         const inside = extractParenContent(next);
-        if (inside) blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(inside)) });
+        blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(inside)) });
         i += 1;
       }
       continue;
@@ -65,7 +68,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span className="mx-2">·</span>
           <span>입력 {formatDate(article.published_at)}</span>
         </div>
-        {article.thumbnail_url ? <img src={article.thumbnail_url} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
+        <img src={article.thumbnail_url || fallbackImage} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" />
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
           {body.map((block, index) => block.kind === 'image' ? (
             <img key={index} src={block.value} alt="기사 이미지" className="my-8 max-h-[520px] w-full rounded-2xl object-cover" />
