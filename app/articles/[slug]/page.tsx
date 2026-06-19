@@ -6,11 +6,15 @@ export async function generateStaticParams() {
   return articles.map((article) => ({ slug: article.slug }));
 }
 
+function cleanBody(content: string) {
+  return content.split('\n').map((line) => line.trim()).filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(');
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
-  const body = (article.content ?? article.summary ?? '').split('\n').map((line) => line.trim()).filter(Boolean);
+  const body = cleanBody(article.content ?? article.summary ?? '');
 
   return (
     <main className="bg-white">
