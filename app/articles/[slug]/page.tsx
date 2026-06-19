@@ -1,62 +1,16 @@
 import { getArticleBySlug, getPublishedArticles } from '@/lib/data/public';
 import { formatDate } from '@/lib/utils/format';
 
-type Block = { kind: 'text'; value: string } | { kind: 'image'; value: string };
-
-const fallbackImage = '/media/edu-lifelong.svg';
-
 export async function generateStaticParams() {
   const articles = await getPublishedArticles();
   return articles.map((article) => ({ slug: article.slug }));
-}
-
-function normalizeImageUrl(value: string) {
-  const url = value.replace('&amp;', '&').trim();
-  return url || fallbackImage;
-}
-
-function firstToken(value: string) {
-  return value.trim().split(' ')[0] || '';
-}
-
-function extractParenContent(value: string) {
-  const close = value.lastIndexOf(')');
-  return close > 0 ? value.slice(1, close) : '';
-}
-
-function parseBody(content: string): Block[] {
-  const lines = content.split('\n').map((line) => line.trim()).filter(Boolean);
-  const blocks: Block[] = [];
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i];
-    if (!line) continue;
-    if (line.startsWith('![')) {
-      const start = line.indexOf('](');
-      if (start > -1) {
-        const inside = extractParenContent(line.slice(start + 1));
-        blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(inside)) });
-        continue;
-      }
-      const next = lines[i + 1];
-      if (next && next.charAt(0) === '(') {
-        const inside = extractParenContent(next);
-        blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(inside)) });
-        i += 1;
-      }
-      continue;
-    }
-    if (line.charAt(0) === '(') continue;
-    blocks.push({ kind: 'text', value: line });
-  }
-  return blocks.filter((block) => block.value);
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
-  const body = parseBody(article.content ?? article.summary ?? '');
-  const hasBodyImage = body.some((block) => block.kind === 'image');
+  const body = (article.content ?? article.summary ?? '').split('\n').map((line) => line.trim()).filter(Boolean);
 
   return (
     <main className="bg-white">
@@ -69,13 +23,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span className="mx-2">·</span>
           <span>입력 {formatDate(article.published_at)}</span>
         </div>
-        {!hasBodyImage ? <img src={article.thumbnail_url || fallbackImage} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
+        {article.thumbnail_url ? <img src={article.thumbnail_url} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
-          {body.map((block, index) => block.kind === 'image' ? (
-            <img key={index} src={block.value} alt="기사 이미지" className="my-8 h-[240px] w-full rounded-2xl object-cover md:h-[360px]" />
-          ) : (
-            <p key={index}>{block.value}</p>
-          ))}
+          {body.map((line, index) => <p key={index}>{line}</p>)}
         </div>
       </article>
     </main>
