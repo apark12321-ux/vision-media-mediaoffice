@@ -132,7 +132,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const latest = all.filter((item) => item.slug !== article.slug).slice(0, 8);
   const popular = all.filter((item) => item.slug !== article.slug).slice(3, 11);
   const related = all.filter((item) => item.categories?.slug === article.categories?.slug && item.slug !== article.slug).slice(0, 4);
-  const sponsoredNotice = requiresSponsoredNotice(article) ? getSponsoredNotice(article.article_type) : null;
+  const sponsoredNotice = requiresSponsoredNotice(article.article_type, article.is_sponsored) ? getSponsoredNotice(article.article_type, article.sponsored_notice) : null;
 
   return (
     <div className="bg-white">
