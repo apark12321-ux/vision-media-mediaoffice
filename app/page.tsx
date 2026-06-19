@@ -119,63 +119,25 @@ export default async function HomePage() {
   return (
     <main className="bg-[#f4f4f4] text-slate-900">
       <section className="border-b bg-white">
-        <div className="mx-auto flex max-w-[1120px] justify-between px-4 py-2 text-[12px] text-slate-500">
-          <span>2026년 06월 18일 목요일</span>
-          <span>교육 전문 인터넷신문</span>
-        </div>
+        <div className="mx-auto flex max-w-[1120px] justify-between px-4 py-2 text-[12px] text-slate-500"><span>2026년 06월 18일 목요일</span><span>교육 전문 인터넷신문</span></div>
       </section>
 
       <section className="bg-white">
         <div className="mx-auto flex max-w-[1120px] flex-col gap-4 px-4 py-6 md:flex-row md:items-end md:justify-between">
-          <Link href="/">
-            <p className="text-[11px] font-bold tracking-[0.28em] text-slate-400">신속공정한 교육뉴스</p>
-            <h1 className="mt-1 text-5xl font-black tracking-[-0.08em] text-slate-800">에듀저널</h1>
-            <p className="mt-1 text-[11px] font-bold tracking-[0.36em] text-slate-400">EDU JOURNAL</p>
-          </Link>
+          <Link href="/"><p className="text-[11px] font-bold tracking-[0.28em] text-slate-400">신속공정한 교육뉴스</p><h1 className="mt-1 text-5xl font-black tracking-[-0.08em] text-slate-800">에듀저널</h1><p className="mt-1 text-[11px] font-bold tracking-[0.36em] text-slate-400">EDU JOURNAL</p></Link>
           <BannerAd src="/ads/daekyo-consulting.svg" alt="대교 평생교육 학습 컨설팅 광고" className="wide h-[96px] w-full max-w-[540px]" />
         </div>
       </section>
 
-      <section className="border-y border-slate-900 bg-white">
-        <div className="mx-auto flex max-w-[1120px] gap-3 px-4 py-2 text-[13px]">
-          <span className="bg-slate-950 px-2 py-1 text-[11px] font-black text-white">속보</span>
-          <div className="flex flex-wrap gap-x-5 gap-y-1">
-            {articles.slice(0, 3).map((article) => <Link key={article.id} href={`/articles/${article.slug}`} className="hover:text-amber-600">{article.title}</Link>)}
-          </div>
-        </div>
-      </section>
+      <section className="border-y border-slate-900 bg-white"><div className="mx-auto flex max-w-[1120px] gap-3 px-4 py-2 text-[13px]"><span className="bg-slate-950 px-2 py-1 text-[11px] font-black text-white">속보</span><div className="flex flex-wrap gap-x-5 gap-y-1">{articles.slice(0, 3).map((article) => <Link key={article.id} href={`/articles/${article.slug}`} className="hover:text-amber-600">{article.title}</Link>)}</div></div></section>
 
       <section className="mx-auto grid max-w-[1120px] grid-cols-12 gap-5 px-4 py-5">
         <div className="col-span-12 lg:col-span-8">
           <div className="grid gap-5 md:grid-cols-[1.35fr_1fr]">
-            <article className="border bg-white p-4">
-              {hero ? (
-                <Link href={`/articles/${hero.slug}`} className="group block">
-                  <Thumb article={hero} ratio="aspect-[16/10]" />
-                  <p className="mt-4 text-[12px] font-black tracking-[0.2em] text-amber-600">TOP NEWS</p>
-                  <h2 className="mt-1 text-[30px] font-black leading-tight tracking-[-0.05em] group-hover:text-amber-600">{hero.title}</h2>
-                  <p className="mt-3 line-clamp-3 text-[14px] leading-7 text-slate-600">{hero.summary}</p>
-                  <p className="mt-3 text-[12px] text-slate-500">{hero.author_name} · {formatDate(hero.published_at)}</p>
-                </Link>
-              ) : null}
-            </article>
-            <div className="space-y-3">
-              {sub.map((article) => (
-                <Link key={article.id} href={`/articles/${article.slug}`} className="grid grid-cols-[116px_1fr] gap-3 border bg-white p-3 hover:border-amber-400">
-                  <Thumb article={article} />
-                  <div>
-                    <p className="text-[11px] font-bold text-amber-600">{article.categories?.name || '교육뉴스'}</p>
-                    <h3 className="line-clamp-2 text-[15px] font-black leading-6">{article.title}</h3>
-                    <p className="mt-1 text-[12px] text-slate-500">{formatDate(article.published_at)}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <article className="border bg-white p-4">{hero ? <Link href={`/articles/${hero.slug}`} className="group block"><Thumb article={hero} ratio="aspect-[16/10]" /><p className="mt-4 text-[12px] font-black tracking-[0.2em] text-amber-600">TOP NEWS</p><h2 className="mt-1 text-[30px] font-black leading-tight tracking-[-0.05em] group-hover:text-amber-600">{hero.title}</h2><p className="mt-3 line-clamp-3 text-[14px] leading-7 text-slate-600">{hero.summary}</p><p className="mt-3 text-[12px] text-slate-500">{hero.author_name} · {formatDate(hero.published_at)}</p></Link> : null}</article>
+            <div className="space-y-3">{sub.map((article) => <Link key={article.id} href={`/articles/${article.slug}`} className="grid grid-cols-[116px_1fr] gap-3 border bg-white p-3 hover:border-amber-400"><Thumb article={article} /><div><p className="text-[11px] font-bold text-amber-600">{article.categories?.name || '교육뉴스'}</p><h3 className="line-clamp-2 text-[15px] font-black leading-6">{article.title}</h3><p className="mt-1 text-[12px] text-slate-500">{formatDate(article.published_at)}</p></div></Link>)}</div>
           </div>
-          <div className="mt-5 grid gap-5 md:grid-cols-2">
-            <NewsList title="최신 교육뉴스" articles={latest} />
-            <NewsList title="편집국 추천" articles={articles.slice(15, 25)} />
-          </div>
+          <div className="mt-5 grid gap-5 md:grid-cols-2"><NewsList title="최신 교육뉴스" articles={latest} /><NewsList title="편집국 추천" articles={articles.slice(15, 25)} /></div>
         </div>
 
         <aside className="col-span-12 space-y-4 lg:col-span-4">
@@ -187,18 +149,8 @@ export default async function HomePage() {
         </aside>
       </section>
 
-      <section className="mx-auto max-w-[1120px] px-4 pb-5">
-        <BannerAd src="/ads/fastcampus-skillup.svg" alt="패스트캠퍼스 실무 스킬업 광고" className="wide h-[132px] md:h-[150px]" />
-      </section>
-
-      <section className="mx-auto grid max-w-[1120px] gap-5 px-4 pb-10 md:grid-cols-2">
-        {sections.map(([title, slug], index) => (
-          <div key={slug} className="space-y-5">
-            <SectionCard title={title} slug={slug} articles={articles} />
-            {index === 1 ? <BannerAd src="/ads/woongjin-ai.svg" alt="웅진씽크빅 AI 맞춤 학습 광고" className="h-[220px]" /> : null}
-          </div>
-        ))}
-      </section>
+      <section className="mx-auto max-w-[1120px] px-4 pb-5"><BannerAd src="/ads/fastcampus-skillup.svg" alt="패스트캠퍼스 실무 스킬업 광고" className="wide h-[132px] md:h-[150px]" /></section>
+      <section className="mx-auto grid max-w-[1120px] gap-5 px-4 pb-10 md:grid-cols-2">{sections.map(([title, slug], index) => <div key={slug} className="space-y-5"><SectionCard title={title} slug={slug} articles={articles} />{index === 1 ? <BannerAd src="/ads/woongjin-ai.svg" alt="웅진씽크빅 AI 맞춤 학습 광고" className="h-[220px]" /> : null}</div>)}</section>
     </main>
   );
 }
