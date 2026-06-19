@@ -9,7 +9,7 @@ export async function generateStaticParams() {
 }
 
 function normalizeImageUrl(value: string) {
-  return value.replace(/&amp;/g, '&').replace(/^\(/, '').replace(/\)$/, '').replace(/^"/, '').replace(/"$/, '').trim();
+  return value.replace('&amp;', '&').trim();
 }
 
 function parseBody(content: string): Block[] {
