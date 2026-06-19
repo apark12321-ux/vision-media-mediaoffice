@@ -6,6 +6,25 @@ export async function generateStaticParams() {
   return articles.map((article) => ({ slug: article.slug }));
 }
 
+function parseBody(content: string) {
+  return content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      if (!line.startsWith('![')) return { type: 'text' as const, text: line };
+      const altEnd = line.indexOf('](');
+      const urlEnd = line.indexOf(')', altEnd + 2);
+      if (altEnd < 0 || urlEnd < 0) return { type: 'text' as const, text: '' };
+      return {
+        type: 'image' as const,
+        alt: line.slice(2, altEnd),
+        src: line.slice(altEnd + 2, urlEnd).split(' ')[0]
+      };
+    })
+    .filter((item) => item.type === 'image' || item.text);
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
@@ -14,10 +33,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
   }
 
-  const body = (article.content ?? article.summary ?? '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(');
+  const blocks = parseBody(article.content ?? article.summary ?? '');
 
   return (
     <main className="bg-white">
@@ -32,8 +48,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
         {article.thumbnail_url ? <img src={article.thumbnail_url} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
-          {body.map((line, index) => (
-            <p key={index}>{line}</p>
+          {blocks.map((block, index) => block.type === 'image' ? (
+            <figure key={index} className="my-8 overflow-hidden rounded-2xl border bg-slate-50">
+              <img src={block.src} alt={block.alt} className="max-h-[520px] w-full object-cover" />
+              {block.alt ? <figcaption className="px-4 py-3 text-sm text-slate-500">{block.alt}</figcaption> : null}
+            </figure>
+          ) : (
+            <p key={index}>{block.text}</p>
           ))}
         </div>
       </article>
