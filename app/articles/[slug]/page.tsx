@@ -72,7 +72,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         {!hasBodyImage ? <img src={article.thumbnail_url || fallbackImage} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
           {body.map((block, index) => block.kind === 'image' ? (
-            <img key={index} src={block.value} alt="기사 이미지" className="my-8 h-[360px] w-full rounded-2xl object-cover" />
+            <img key={index} src={block.value} alt="기사 이미지" className="my-8 h-[240px] w-full rounded-2xl object-cover md:h-[360px]" />
           ) : (
             <p key={index}>{block.value}</p>
           ))}
