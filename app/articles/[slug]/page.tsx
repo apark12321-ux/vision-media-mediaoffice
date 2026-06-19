@@ -16,6 +16,11 @@ function firstToken(value: string) {
   return value.trim().split(' ')[0] || '';
 }
 
+function extractParenContent(value: string) {
+  const close = value.lastIndexOf(')');
+  return close > 0 ? value.slice(1, close) : '';
+}
+
 function parseBody(content: string): Block[] {
   const lines = content.split('\n').map((line) => line.trim()).filter(Boolean);
   const blocks: Block[] = [];
@@ -24,12 +29,15 @@ function parseBody(content: string): Block[] {
     if (!line) continue;
     if (line.startsWith('![')) {
       const start = line.indexOf('](');
-      const end = line.indexOf(')', start + 2);
-      if (start > -1 && end > start) blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(line.slice(start + 2, end))) });
+      if (start > -1) {
+        const inside = extractParenContent(line.slice(start + 1));
+        if (inside) blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(inside)) });
+        continue;
+      }
       const next = lines[i + 1];
-      if (start < 0 && next && next.charAt(0) === '(') {
-        const close = next.indexOf(')');
-        if (close > 1) blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(next.slice(1, close))) });
+      if (next && next.charAt(0) === '(') {
+        const inside = extractParenContent(next);
+        if (inside) blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(inside)) });
         i += 1;
       }
       continue;
