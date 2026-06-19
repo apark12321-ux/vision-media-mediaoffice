@@ -12,6 +12,7 @@ function parseBody(content: string) {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
+      if (line.at(0) === '(') return { type: 'text' as const, text: '' };
       if (!line.startsWith('![')) return { type: 'text' as const, text: line };
       const altEnd = line.indexOf('](');
       const urlEnd = line.indexOf(')', altEnd + 2);
