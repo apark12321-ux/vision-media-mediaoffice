@@ -56,6 +56,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const article = await getArticleBySlug(slug);
   if (!article) return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
   const body = parseBody(article.content ?? article.summary ?? '');
+  const hasBodyImage = body.some((block) => block.kind === 'image');
 
   return (
     <main className="bg-white">
@@ -68,7 +69,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span className="mx-2">·</span>
           <span>입력 {formatDate(article.published_at)}</span>
         </div>
-        <img src={article.thumbnail_url || fallbackImage} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" />
+        {!hasBodyImage ? <img src={article.thumbnail_url || fallbackImage} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
           {body.map((block, index) => block.kind === 'image' ? (
             <img key={index} src={block.value} alt="기사 이미지" className="my-8 max-h-[520px] w-full rounded-2xl object-cover" />
