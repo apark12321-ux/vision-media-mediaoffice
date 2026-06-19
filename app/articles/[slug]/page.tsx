@@ -14,8 +14,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
-  const content = article.content ?? article.summary ?? '';
-  const body = cleanBody(content);
+  const body = cleanBody(article.content ?? article.summary ?? '');
   const visual = article.thumbnail_url || '/media/edu-lifelong.svg';
 
   return (
