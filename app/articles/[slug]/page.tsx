@@ -12,6 +12,10 @@ function normalizeImageUrl(value: string) {
   return value.replace('&amp;', '&').trim();
 }
 
+function firstToken(value: string) {
+  return value.trim().split(' ')[0] || '';
+}
+
 function parseBody(content: string): Block[] {
   const lines = content.split('\n').map((line) => line.trim()).filter(Boolean);
   const blocks: Block[] = [];
@@ -21,11 +25,11 @@ function parseBody(content: string): Block[] {
     if (line.startsWith('![')) {
       const start = line.indexOf('](');
       const end = line.indexOf(')', start + 2);
-      if (start > -1 && end > start) blocks.push({ kind: 'image', value: normalizeImageUrl(line.slice(start + 2, end).split(' ')[0] || '') });
+      if (start > -1 && end > start) blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(line.slice(start + 2, end))) });
       const next = lines[i + 1];
       if (start < 0 && next && next.charAt(0) === '(') {
         const close = next.indexOf(')');
-        if (close > 1) blocks.push({ kind: 'image', value: normalizeImageUrl(next.slice(1, close).split(' ')[0] || '') });
+        if (close > 1) blocks.push({ kind: 'image', value: normalizeImageUrl(firstToken(next.slice(1, close))) });
         i += 1;
       }
       continue;
