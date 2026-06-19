@@ -14,6 +14,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
   }
 
+  const body = (article.content ?? article.summary ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(');
+
   return (
     <main className="bg-white">
       <article className="mx-auto max-w-[820px] px-4 py-8">
@@ -27,7 +32,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
         {article.thumbnail_url ? <img src={article.thumbnail_url} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
-          {(article.content ?? article.summary ?? '').split('\n').filter(Boolean).map((line, index) => (
+          {body.map((line, index) => (
             <p key={index}>{line}</p>
           ))}
         </div>
