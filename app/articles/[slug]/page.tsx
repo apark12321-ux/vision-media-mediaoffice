@@ -9,10 +9,8 @@ export async function generateStaticParams() {
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
-
-  if (!article) {
-    return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
-  }
+  if (!article) return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
+  const body = (article.content ?? article.summary ?? '').split('\n').map((line) => line.trim()).filter(Boolean);
 
   return (
     <main className="bg-white">
@@ -27,7 +25,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
         {article.thumbnail_url ? <img src={article.thumbnail_url} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
-          {(article.content ?? article.summary ?? '').split('\n').map((line) => line.trim()).filter(Boolean).map((line, index) => <p key={index}>{line}</p>)}
+          {body.map((line, index) => <p key={index}>{line}</p>)}
         </div>
       </article>
     </main>
