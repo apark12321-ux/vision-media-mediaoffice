@@ -10,11 +10,18 @@ function cleanBody(content: string) {
   return content.split('\n').map((line) => line.trim()).filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(');
 }
 
+function bodyImageFallback(content: string, fallback: string | null | undefined) {
+  const hasImage = content.split('\n').some((line) => line.trim().startsWith('!['));
+  return hasImage ? fallback || '/media/edu-lifelong.svg' : fallback || '/media/edu-lifelong.svg';
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
-  const body = cleanBody(article.content ?? article.summary ?? '');
+  const content = article.content ?? article.summary ?? '';
+  const body = cleanBody(content);
+  const visual = bodyImageFallback(content, article.thumbnail_url);
 
   return (
     <main className="bg-white">
@@ -27,7 +34,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span className="mx-2">·</span>
           <span>입력 {formatDate(article.published_at)}</span>
         </div>
-        <img src={article.thumbnail_url || '/media/edu-lifelong.svg'} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" />
+        <img src={visual} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" />
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
           {body.map((line, index) => <p key={index}>{line}</p>)}
         </div>
