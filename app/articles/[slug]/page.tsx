@@ -7,23 +7,34 @@ export async function generateStaticParams() {
 }
 
 function parseBody(content: string) {
-  return content
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      if (line.at(0) === '(') return { type: 'text' as const, text: '' };
-      if (!line.startsWith('![')) return { type: 'text' as const, text: line };
-      const altEnd = line.indexOf('](');
-      const urlEnd = line.indexOf(')', altEnd + 2);
-      if (altEnd < 0 || urlEnd < 0) return { type: 'text' as const, text: '' };
-      return {
-        type: 'image' as const,
-        alt: line.slice(2, altEnd),
-        src: line.slice(altEnd + 2, urlEnd).split(' ')[0]
-      };
-    })
-    .filter((item) => item.type === 'image' || item.text);
+  const rows = content.split('\n').map((line) => line.trim()).filter(Boolean);
+  const result: Array<{ type: 'text'; text: string } | { type: 'image'; alt: string; src: string }> = [];
+
+  for (let index = 0; index < rows.length; index += 1) {
+    const line = rows[index];
+    if (!line) continue;
+    if (line.startsWith('![')) {
+      const altEnd = line.indexOf(']');
+      const inlineStart = line.indexOf('](');
+      const inlineEnd = line.indexOf(')', inlineStart + 2);
+      const alt = altEnd > 1 ? line.slice(2, altEnd) : '기사 이미지';
+      if (inlineStart > -1 && inlineEnd > inlineStart) {
+        result.push({ type: 'image', alt, src: line.slice(inlineStart + 2, inlineEnd).split(' ')[0] });
+        continue;
+      }
+      const next = rows[index + 1];
+      if (next && next.charAt(0) === '(') {
+        const end = next.indexOf(')');
+        if (end > 1) result.push({ type: 'image', alt, src: next.slice(1, end).split(' ')[0] });
+        index += 1;
+      }
+      continue;
+    }
+    if (line.charAt(0) === '(') continue;
+    result.push({ type: 'text', text: line });
+  }
+
+  return result;
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
