@@ -154,13 +154,15 @@ export function ArticleBody({
   content,
   summary,
   articleType,
-  categoryName
+  categoryName,
+  className = ''
 }: {
   title?: string | null;
   content?: string | null;
   summary?: string | null;
   articleType?: string | null;
   categoryName?: string | null;
+  className?: string;
 }) {
   const sections = buildEditorialSections({ title, content, summary, articleType, categoryName });
 
@@ -179,11 +181,11 @@ export function ArticleBody({
   });
 
   if (!blocks.length) {
-    return <p className="text-gray-600">기사가 준비 중이다.</p>;
+    return <p className={`text-gray-600 ${className}`.trim()}>기사가 준비 중이다.</p>;
   }
 
   return (
-    <div className="article-body space-y-6" style={{ fontSize: 'calc(1.08rem * var(--article-font-scale, 1))' }}>
+    <div className={`article-body space-y-6 ${className}`.trim()} style={{ fontSize: 'calc(1.08rem * var(--article-font-scale, 1))' }}>
       {blocks.map((block, index) => {
         if (block.type === 'heading') {
           return (
