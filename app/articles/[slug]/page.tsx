@@ -1,20 +1,42 @@
 import { getArticleBySlug, getPublishedArticles } from '@/lib/data/public';
 import { formatDate } from '@/lib/utils/format';
 
+type Block = { kind: 'text'; value: string } | { kind: 'image'; value: string };
+
 export async function generateStaticParams() {
   const articles = await getPublishedArticles();
   return articles.map((article) => ({ slug: article.slug }));
 }
 
-function cleanBody(content: string) {
-  return content.split('\n').map((line) => line.trim()).filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(');
+function parseBody(content: string): Block[] {
+  const lines = content.split('\n').map((line) => line.trim()).filter(Boolean);
+  const blocks: Block[] = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (!line) continue;
+    if (line.startsWith('![')) {
+      const start = line.indexOf('](');
+      const end = line.indexOf(')', start + 2);
+      if (start > -1 && end > start) blocks.push({ kind: 'image', value: line.slice(start + 2, end).split(' ')[0] || '' });
+      const next = lines[i + 1];
+      if (start < 0 && next && next.charAt(0) === '(') {
+        const close = next.indexOf(')');
+        if (close > 1) blocks.push({ kind: 'image', value: next.slice(1, close).split(' ')[0] || '' });
+        i += 1;
+      }
+      continue;
+    }
+    if (line.charAt(0) === '(') continue;
+    blocks.push({ kind: 'text', value: line });
+  }
+  return blocks.filter((block) => block.value);
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return <main className="px-4 py-10">기사를 찾을 수 없습니다.</main>;
-  const body = cleanBody(article.content ?? article.summary ?? '');
+  const body = parseBody(article.content ?? article.summary ?? '');
 
   return (
     <main className="bg-white">
@@ -29,7 +51,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
         {article.thumbnail_url ? <img src={article.thumbnail_url} alt="" className="mt-6 aspect-video w-full rounded-2xl object-cover" /> : null}
         <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
-          {body.map((line, index) => <p key={index}>{line}</p>)}
+          {body.map((block, index) => block.kind === 'image' ? (
+            <img key={index} src={block.value} alt="기사 이미지" className="my-8 max-h-[520px] w-full rounded-2xl object-cover" />
+          ) : (
+            <p key={index}>{block.value}</p>
+          ))}
         </div>
       </article>
     </main>
