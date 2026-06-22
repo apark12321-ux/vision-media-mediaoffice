@@ -13,7 +13,8 @@ function cleanLines(content: string) {
     .map((line) => line.trim())
     .filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(')
     .filter((line) => !/^#{1,6}\s/.test(line))
-    .map((line) => line.replace(/^[-•]\s*/, ''));
+    .map((line) => line.replace(/^[-•]\s*/, ''))
+    .filter((line) => !['현장에서 달라진 점', '학습자가 확인할 기준', '교육기관의 과제', '주의할 대목', '정리', '기사 요약'].includes(line));
 }
 
 type Article = Awaited<ReturnType<typeof getPublishedArticles>>[number];
@@ -32,7 +33,7 @@ function ArticleImage({ article }: { article: Article }) {
 
 function LeadSummary({ article }: { article: Article }) {
   return (
-    <p className="mt-7 border-y border-slate-200 py-4 text-[18px] font-semibold leading-9 text-slate-700">
+    <p className="mt-7 text-[19px] font-semibold leading-9 text-slate-700">
       {article.summary}
     </p>
   );
@@ -42,7 +43,7 @@ function BodyContent({ article }: { article: Article }) {
   const lines = cleanLines(article.content ?? article.summary ?? '');
 
   return (
-    <div className="mt-8 space-y-7 text-[17px] leading-9 text-slate-800">
+    <div className="mt-8 space-y-6 text-[17px] leading-9 text-slate-800">
       {lines.map((line, index) => (
         <p key={index}>{line}</p>
       ))}
