@@ -1,3 +1,5 @@
 export const metadata = { title: '서비스 이용약관' };
-export default function TermsPage() { return <Policy title="서비스 이용약관"><p>본 약관은 생활경제저널의 브랜드 인터뷰, 제휴 콘텐츠, 광고 패키지, 월관리 서비스 이용 조건을 정합니다.</p><h2>서비스 정의</h2><p>브랜드 인터뷰와 제휴 콘텐츠는 광고주 제공 자료 및 인터뷰를 바탕으로 제작되는 콘텐츠입니다.</p><h2>계약 및 제작</h2><p>계약은 상품 신청, 견적 확인, 결제 또는 별도 합의가 완료된 때 성립합니다. 제작 과정에는 자료 요청, 인터뷰, 초안 작성, 고객 검수, 발행, 납품 단계가 포함됩니다.</p><h2>수정 및 면책</h2><p>발행 후 사실관계 오류 수정은 가능하나, 상품 범위를 초과하는 대규모 재작성은 별도 비용이 발생할 수 있습니다. 광고주 제공 자료의 권리와 정확성에 대한 책임은 제공자에게 있습니다.</p></Policy>; }
-function Policy({ title, children }: { title: string; children: React.ReactNode }) { return <main className="mx-auto max-w-3xl px-4 py-12"><h1 className="text-4xl font-black text-brand-navy">{title}</h1><div className="markdown-body mt-8 text-gray-700">{children}</div></main>; }
+
+export default function TermsPage() {
+  return <main className="mx-auto max-w-3xl px-4 py-12"><h1 className="text-4xl font-black text-brand-navy">서비스 이용약관</h1><div className="mt-8 space-y-7 leading-8 text-gray-700"><p>본 약관은 에듀저널 웹사이트 이용에 관한 기본 사항을 안내합니다.</p><section><h2 className="text-xl font-black text-brand-navy">콘텐츠 이용</h2><p className="mt-2">사이트의 기사와 자료는 독자의 정보 확인을 돕기 위한 목적으로 제공됩니다. 무단 복제, 배포, 재가공은 제한됩니다.</p></section><section><h2 className="text-xl font-black text-brand-navy">정보 확인</h2><p className="mt-2">교육 과정, 비용, 일정, 제도는 변경될 수 있으므로 신청 전 공식 안내처에서 다시 확인해야 합니다.</p></section><section><h2 className="text-xl font-black text-brand-navy">문의</h2><p className="mt-2">오류 제보와 문의는 문의 페이지를 통해 접수할 수 있습니다.</p></section></div></main>;
+}
