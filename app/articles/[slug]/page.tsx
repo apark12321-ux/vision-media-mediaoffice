@@ -11,7 +11,9 @@ function cleanLines(content: string) {
   return content
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(');
+    .filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(')
+    .filter((line) => !/^#{1,6}\s/.test(line))
+    .map((line) => line.replace(/^[-•]\s*/, ''));
 }
 
 type Article = Awaited<ReturnType<typeof getPublishedArticles>>[number];
@@ -22,40 +24,28 @@ function ArticleImage({ article }: { article: Article }) {
     <figure className="mt-7">
       <img src={src} alt={article.title} className="aspect-[16/9] w-full rounded-sm bg-slate-100 object-cover" />
       <figcaption className="mt-2 border-l-2 border-slate-300 pl-3 text-[12px] leading-5 text-slate-500">
-        {article.image_caption || `${article.categories?.name ?? '교육'} 관련 현장 자료사진.`}
+        {article.image_caption || `${article.categories?.name ?? '교육'} 관련 교육 현장 자료사진.`}
       </figcaption>
     </figure>
   );
 }
 
-function SummaryBox({ article }: { article: Article }) {
+function LeadSummary({ article }: { article: Article }) {
   return (
-    <section className="mt-8 border-y border-slate-900 bg-slate-50 px-5 py-5">
-      <p className="text-[12px] font-black tracking-[0.18em] text-brand-blue">기사 요약</p>
-      <ul className="mt-3 space-y-2 text-[15px] font-semibold leading-7 text-slate-800">
-        <li>• {article.summary}</li>
-        <li>• 과정 선택 시 운영 기준, 상담 체계, 수료 후 활용 가능성을 함께 확인해야 한다.</li>
-        <li>• 교육기관은 단순 모집보다 검증 가능한 운영 정보를 꾸준히 공개하는 것이 중요하다.</li>
-      </ul>
-    </section>
+    <p className="mt-7 border-y border-slate-200 py-4 text-[18px] font-semibold leading-9 text-slate-700">
+      {article.summary}
+    </p>
   );
 }
 
 function BodyContent({ article }: { article: Article }) {
   const lines = cleanLines(article.content ?? article.summary ?? '');
-  const headings = ['현장에서 달라진 점', '학습자가 확인할 기준', '교육기관의 과제', '주의할 대목', '정리'];
 
   return (
-    <div className="mt-8 text-[17px] leading-9 text-slate-800">
-      {lines.map((line, index) => {
-        const heading = index > 0 && index <= headings.length ? headings[index - 1] : null;
-        return (
-          <section key={index} className={index === 0 ? '' : 'mt-8'}>
-            {heading ? <h2 className="mb-3 border-l-4 border-brand-blue pl-3 text-[22px] font-black leading-tight text-slate-950">{heading}</h2> : null}
-            <p>{line}</p>
-          </section>
-        );
-      })}
+    <div className="mt-8 space-y-7 text-[17px] leading-9 text-slate-800">
+      {lines.map((line, index) => (
+        <p key={index}>{line}</p>
+      ))}
     </div>
   );
 }
@@ -133,15 +123,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </header>
 
           <ArticleImage article={article} />
-          <SummaryBox article={article} />
+          <LeadSummary article={article} />
           <BodyContent article={article} />
 
-          <section className="mt-10 border-y border-slate-200 py-5">
-            <h2 className="text-[18px] font-black">기사 마무리</h2>
-            <p className="mt-3 text-[16px] leading-8 text-slate-700">
-              이번 사안은 단순한 교육과정 소개를 넘어 학습자가 어떤 기준으로 기관과 과정을 선택해야 하는지를 보여준다. 에듀저널은 앞으로도 관련 제도, 현장 사례, 학습자 관점의 확인 포인트를 함께 점검할 계획이다.
-            </p>
-          </section>
+          <p className="mt-9 border-y border-slate-200 py-5 text-[16px] leading-8 text-slate-700">
+            에듀저널은 교육 현장에서 확인되는 제도 변화와 학습자 선택 기준을 계속 점검하고, 관련 기관의 운영 정보와 실제 활용 사례를 함께 보도할 예정이다.
+          </p>
 
           {tags.length ? (
             <section className="mt-6 flex flex-wrap gap-2">
