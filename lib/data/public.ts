@@ -25,12 +25,80 @@ export const fallbackCategories = [
   { id: 'cat-press-release', name: '공지·보도', slug: 'press-release', description: '교육 관련 공지와 보도자료', sort_order: 9 }
 ] as Category[];
 
+const thumbnailPools: Record<string, string[]> = {
+  'lifelong-education': [
+    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1600&q=90'
+  ],
+  'career-dev': [
+    'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=90'
+  ],
+  'senior-education': [
+    'https://images.unsplash.com/photo-1516302752625-fcc3c50ae61f?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1581579186986-d50017c7f04b?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1600&q=90'
+  ],
+  'edutech-ai': [
+    'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1516321165247-4aa89a48be28?auto=format&fit=crop&w=1600&q=90'
+  ],
+  'wellness-life': [
+    'https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1491841573634-28140fc7ced7?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1474366521946-c3d4b507abf2?auto=format&fit=crop&w=1600&q=90'
+  ],
+  'edu-institution': [
+    'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1600&q=90'
+  ],
+  'interview-people': [
+    'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1600&q=90'
+  ],
+  opinion: [
+    'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1600&q=90'
+  ],
+  'press-release': [
+    'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1600&q=90',
+    'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1600&q=90'
+  ]
+};
+
 function category(slug: string) {
   return fallbackCategories.find((item) => item.slug === slug) ?? fallbackCategories[0]!;
 }
 
-function stableArticleImage(articleId: string) {
-  return `/api/article-thumbnail/${encodeURIComponent(articleId)}`;
+function hashString(value: string) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(index);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function stableArticleImage(categorySlug: string, articleId: string, title: string) {
+  const pool = thumbnailPools[categorySlug] ?? thumbnailPools['lifelong-education'];
+  const index = hashString(`${categorySlug}-${articleId}-${title}`) % pool.length;
+  return pool[index]!;
 }
 
 function text(summary: string) {
@@ -39,7 +107,7 @@ function text(summary: string) {
 
 function toArticle(seed: (typeof eduArticleSeeds)[number]) {
   const cat = category(seed.categorySlug);
-  const photo = seed.thumbnailUrl || stableArticleImage(seed.id);
+  const photo = stableArticleImage(seed.categorySlug, seed.id, seed.title);
 
   return {
     id: seed.id,
