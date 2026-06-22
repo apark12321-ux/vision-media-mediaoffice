@@ -1,17 +1,17 @@
 import { eduArticleSeeds } from '@/lib/data/edu-articles';
 import type { Article, Category, Product, SiteSettings } from '@/types/database';
 
-const fallbackSettings = {
+const fallbackSettings: SiteSettings = {
   id: 'fallback',
   site_name: '에듀저널',
   site_description: '평생교육, 자격증, 시니어 학습, 에듀테크, 교육기관 정보를 다루는 교육 전문 인터넷매체입니다.',
   operator_name: '알고파트너스',
   business_name: '알고파트너스',
   representative_name: '박예준',
-  media_registration_status: 'pending',
+  media_registration_status: 'preparing',
   contact_email: 'contact@edujournal.kr',
   contact_phone: '확인 후 표기'
-} as SiteSettings;
+};
 
 export const fallbackCategories = [
   { id: 'cat-lifelong-education', name: '평생교육·HRD', slug: 'lifelong-education', description: '평생교육 정책과 성인학습 현장', sort_order: 1 },
@@ -25,24 +25,25 @@ export const fallbackCategories = [
   { id: 'cat-press-release', name: '공지·보도', slug: 'press-release', description: '교육 관련 공지와 보도자료', sort_order: 9 }
 ] as Category[];
 
-const categoryImages: Record<string, string> = {
-  'lifelong-education': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
-  'career-dev': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
-  'senior-education': 'https://images.unsplash.com/photo-1573497491208-6b1acb260507?auto=format&fit=crop&w=1200&q=80',
-  'edutech-ai': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
-  'wellness-life': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80',
-  'edu-institution': 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
-  'interview-people': 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=80',
-  opinion: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80',
-  'press-release': 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80'
+const categorySeedPrefix: Record<string, string> = {
+  'lifelong-education': 'lifelong-learning-classroom',
+  'career-dev': 'career-certificate-study',
+  'senior-education': 'senior-digital-learning',
+  'edutech-ai': 'edutech-ai-learning',
+  'wellness-life': 'wellness-humanities-class',
+  'edu-institution': 'education-institution-campus',
+  'interview-people': 'education-interview-people',
+  opinion: 'education-column-writing',
+  'press-release': 'education-news-briefing'
 };
 
 function category(slug: string) {
   return fallbackCategories.find((item) => item.slug === slug) ?? fallbackCategories[0]!;
 }
 
-function imageFor(slug: string) {
-  return categoryImages[slug] ?? categoryImages['lifelong-education']!;
+function stableArticleImage(categorySlug: string, articleId: string) {
+  const prefix = categorySeedPrefix[categorySlug] ?? 'education-journal-article';
+  return `https://picsum.photos/seed/${encodeURIComponent(`${prefix}-${articleId}`)}/1200/800`;
 }
 
 function text(summary: string) {
@@ -51,7 +52,7 @@ function text(summary: string) {
 
 function toArticle(seed: (typeof eduArticleSeeds)[number]) {
   const cat = category(seed.categorySlug);
-  const photo = seed.thumbnailUrl || imageFor(seed.categorySlug);
+  const photo = seed.thumbnailUrl || stableArticleImage(seed.categorySlug, seed.id);
   return {
     id: seed.id,
     title: seed.title,
@@ -63,7 +64,7 @@ function toArticle(seed: (typeof eduArticleSeeds)[number]) {
     status: 'published',
     thumbnail_url: photo,
     image_caption: seed.imageCaption || `${cat.name} 관련 교육 현장 자료사진.`,
-    image_source_name: seed.imageSourceName || 'Unsplash',
+    image_source_name: seed.imageSourceName || '자료사진',
     image_source_url: photo,
     author_name: seed.author ?? '에듀저널 편집부',
     tags: seed.tags,
