@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { AdSenseScript } from '@/components/ads/adsense-script';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
 
@@ -16,7 +15,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body className="min-h-screen bg-white text-brand-ink antialiased">
-        <AdSenseScript />
         <PublicHeader />
         <main>{children}</main>
         <PublicFooter />
