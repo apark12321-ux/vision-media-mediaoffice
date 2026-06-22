@@ -7,10 +7,10 @@ const navItems = [
   ['시니어교육', '/category/senior-education'],
   ['에듀테크', '/category/edutech-ai'],
   ['교육기관', '/category/edu-institution'],
-  ['인터뷰', '/category/brand-interview'],
+  ['인터뷰', '/category/interview-people'],
   ['오피니언', '/category/opinion'],
-  ['보도자료', '/category/press-release'],
-  ['교육센터', '/education-center']
+  ['공지·보도', '/category/press-release'],
+  ['기사제보', '/report']
 ] as const;
 
 export function PublicHeader() {
