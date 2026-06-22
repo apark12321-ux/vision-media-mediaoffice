@@ -7,6 +7,27 @@ export async function generateStaticParams() {
   return articles.map((article) => ({ slug: article.slug }));
 }
 
+const SECTION_LABELS = new Set([
+  '현장에서 달라진 점',
+  '학습자가 확인할 기준',
+  '교육기관의 과제',
+  '주의할 대목',
+  '정리',
+  '기사 요약',
+  '핵심 요약',
+  '현장 맥락',
+  '독자 영향',
+  '전망과 과제',
+  '마무리'
+]);
+
+function isSectionLabel(line: string) {
+  const text = line.trim().replace(/^[-•#\s]+/, '').replace(/[:：]$/, '').trim();
+  if (SECTION_LABELS.has(text)) return true;
+  if (text.length <= 16 && /^(현장|학습자|교육기관|주의|정리|마무리|전망|배경|핵심)/.test(text) && !/[.!?。다]$/.test(text)) return true;
+  return false;
+}
+
 function cleanLines(content: string) {
   return content
     .split('\n')
@@ -14,7 +35,7 @@ function cleanLines(content: string) {
     .filter((line) => line && line.charAt(0) !== '!' && line.charAt(0) !== '(')
     .filter((line) => !/^#{1,6}\s/.test(line))
     .map((line) => line.replace(/^[-•]\s*/, ''))
-    .filter((line) => !['현장에서 달라진 점', '학습자가 확인할 기준', '교육기관의 과제', '주의할 대목', '정리', '기사 요약'].includes(line));
+    .filter((line) => !isSectionLabel(line));
 }
 
 type Article = Awaited<ReturnType<typeof getPublishedArticles>>[number];
@@ -43,7 +64,7 @@ function BodyContent({ article }: { article: Article }) {
   const lines = cleanLines(article.content ?? article.summary ?? '');
 
   return (
-    <div className="mt-8 space-y-6 text-[17px] leading-9 text-slate-800">
+    <div className="mt-8 space-y-5 text-[17px] leading-9 text-slate-800">
       {lines.map((line, index) => (
         <p key={index}>{line}</p>
       ))}
