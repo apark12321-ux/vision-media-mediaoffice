@@ -4,13 +4,13 @@ import type { Article, Category, Product, SiteSettings } from '@/types/database'
 const fallbackSettings = {
   id: 'fallback',
   site_name: '에듀저널',
-  site_description: '교육 전문 인터넷매체입니다.',
-  operator_name: 'Algo Partners',
+  site_description: '평생교육, 자격증, 시니어 학습, 에듀테크, 교육기관 정보를 다루는 교육 전문 인터넷매체입니다.',
+  operator_name: '알고파트너스',
   business_name: '알고파트너스',
   representative_name: '박예준',
-  media_registration_status: 'unregistered',
-  contact_email: 'contact@example.com',
-  contact_phone: '000-0000-0000'
+  media_registration_status: 'pending',
+  contact_email: 'contact@edujournal.kr',
+  contact_phone: '확인 후 표기'
 } as SiteSettings;
 
 export const fallbackCategories = [
