@@ -29,8 +29,9 @@ function category(slug: string) {
   return fallbackCategories.find((item) => item.slug === slug) ?? fallbackCategories[0]!;
 }
 
-function articleThumbnail(articleId: string) {
-  return `/api/article-thumbnail/${encodeURIComponent(articleId)}`;
+function realPhotoThumbnail(articleId: string, categorySlug: string) {
+  const seed = encodeURIComponent(`edujournal-${categorySlug}-${articleId}`);
+  return `https://picsum.photos/seed/${seed}/1600/900`;
 }
 
 function text(summary: string) {
@@ -39,7 +40,7 @@ function text(summary: string) {
 
 function toArticle(seed: (typeof eduArticleSeeds)[number]) {
   const cat = category(seed.categorySlug);
-  const photo = seed.thumbnailUrl || articleThumbnail(seed.id);
+  const photo = seed.thumbnailUrl || realPhotoThumbnail(seed.id, seed.categorySlug);
 
   return {
     id: seed.id,
@@ -52,7 +53,7 @@ function toArticle(seed: (typeof eduArticleSeeds)[number]) {
     status: 'published',
     thumbnail_url: photo,
     image_caption: seed.imageCaption || `${cat.name} 관련 교육 현장 자료사진.`,
-    image_source_name: seed.imageSourceName || '에듀저널 자료 이미지',
+    image_source_name: seed.imageSourceName || '공개 사진 자료',
     image_source_url: photo,
     author_name: seed.author ?? '에듀저널 편집부',
     tags: seed.tags,
