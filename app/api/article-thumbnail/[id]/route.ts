@@ -1,23 +1,100 @@
-import { NextResponse } from 'next/server';
-import { eduArticleSeeds } from '@/lib/data/edu-articles';
+const categoryThemes: Record<string, { label: string; from: string; to: string; accent: string; mark: string }> = {
+  life: { label: '평생교육', from: '#0f172a', to: '#2563eb', accent: '#f59e0b', mark: 'HRD' },
+  career: { label: '자격증', from: '#111827', to: '#6d28d9', accent: '#38bdf8', mark: 'CERT' },
+  senior: { label: '시니어교육', from: '#064e3b', to: '#0f766e', accent: '#fde68a', mark: 'DIGI' },
+  ai: { label: '에듀테크·AI', from: '#020617', to: '#1d4ed8', accent: '#22d3ee', mark: 'AI' },
+  well: { label: '웰니스·인문학', from: '#3f2f1f', to: '#a16207', accent: '#fef3c7', mark: 'LIFE' },
+  inst: { label: '교육기관', from: '#1e293b', to: '#475569', accent: '#93c5fd', mark: 'EDU' },
+  people: { label: '인터뷰', from: '#312e81', to: '#4f46e5', accent: '#fbbf24', mark: 'VIEW' },
+  opinion: { label: '오피니언', from: '#1f2937', to: '#334155', accent: '#60a5fa', mark: 'OP' },
+  press: { label: '보도자료', from: '#7f1d1d', to: '#b91c1c', accent: '#facc15', mark: 'NEWS' }
+};
 
-const images: Record<string, string> = {"lifelong-education":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIDAQT/xAAnEAACAgEEAQQCAwEAAAAAAAAAAQIRAxIhMUFRIjJxgUJhBBORFP/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFREBAQAAAAAAAAAAAAAAAAAAABH/2gAMAwEAAhEDEQA/AL5O/ocnP2spYA+DIe37YPgyPD+QGfDFi938m9CrmQDN2icuZfA/TEl+QEGbj5Zj6Nx8sCoB0aArI5Zy4WyLsScIuN/oiuZSadpgKwKjvyTjGNN/Q0Zqcbi7RKcU5ua8dmKf9cJNLdsg6HwRjm/Xpb5IqeSV+rYa3/VVb8UgrqFXLBOTj1wSzTlGD33b6Ki3TFnW99nNCEktV0+UO8qlF/ryRYx9Bj5YqkpcG4/cyoeeTTtVt9Bjya7VU0a4JvU+aMglqcqoinYJWqB8FKpJFRGWCF2A7Ailk7bJyhcfuykotNvolKTZUUaSVUND2nPLLtVb+RoSaaV7EWr+qvS4r5FlDXB6pJ+KNlBShU3XwbSjBKPCQROtlHvgk8coJ3umujprsO6CuNJwktSdM6MehttRe3liTyQbqpXfaGxSi1KlRUM5GRTU2v8ARV7zcl6tuaArW68DyZPA9mmNNkVjAH2AEll12qolL3DYoT1N6Wl8DuHmL/wqOeW8th79SRSOOHucXfgKi2209XXQC6b7ZWDk2lewnwVxLltEA012Zvq8jv8ATQjlG/VOl+mFJKnJukPCFrwTeTCu2w/6Utoxf2VFtD8iuM1xTIy/kTvakI8uR/kB0QjJTTeyKvS900/s4NTb3bf2YwO2U4JbyX+gcIAdmHJKTcZb7lmAAArf6QABHLllDhIi8+R/lXwAAJqlJ7thQAAWbXpb8AAB2bDh/DAAFjyAABgAAH//2Q==","career-dev":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIDAQT/xAArEAACAgEDAQYGAwAAAAAAAAAAAQIRAxIhMUETIjJRcYEEFFJhkaEjQrH/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAVEQEBAAAAAAAAAAAAAAAAAAAAAf/aAAwDAQACEQMRAD8Aiq197g2KlJ0kLLxMbHd2unmVGtOLp8hYatTbZWMsajvjtgc/936jV9zHTyulSG3IJylT2QOW1ivkFwFP1VhJbMS9xmBka6lIRbqk2TjG0ztxOMMaTasDlp456mvYftpPdRSNyOMsjVonKKqlNeyIGlkyPl7AZJquWqVAULLeTNjF0wXiZSPARuGEdNvkeUV0JqSjFtkZTlJ237AMl/K/Uot3tuQsfFNq43yFh541p+/mTcNMGy9qjJUlbdIjTmjFt0isoNJ2LqrIpJDznJp3RWWYsTnG7otH4a1vL9E4dpDHae3QHnyJeICeSOnI15MHGpe5Rd+Kn1bM3fVgE4ugKRjFw7yv1ACFq7N1iJGvYDJSvbyFNMAABbsAHjlaVNWK5OXJgANF7opJppklsXxqMpJPh9AgWSsai4vgR0/M6Xji41VELjF03dBWQtUktk7DXu9luGpd6uBQGeRuLVLcBAAFwK3uCYNW9gAKKLBJrlL1G+Xf1xAXFjUncnsik8UJP6fuh8eGcFVpjLHO96CuKSak15GUdj+Fi3bkyiwwSrSn6oI4CuOWmN1dHS8OLrFE9OCL0u1f4Azt3pvT+zmvc6X2dutVf6I4Y/pYE1waK2FgaBsU5LavcAKLHBdBlGKeySADKnS9fybJtLlv1AChcc3J00vY2WSSdJgBUYpzb8TKK+smwAisfJmmL6IAAxwhfhRjxQrj9gBBJ44roY4pAABFIAAo/9k=","senior-education":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAECAwT/xAAqEAACAgIBAgYBBAMAAAAAAAAAAQIRAyExEkETIlFhcZGBBDIzUiNCsf/EABYBAQEBAAAAAAAAAAAAAAAAAAABAv/EABYRAQEBAAAAAAAAAAAAAAAAAAABEf/aAAwDAQACEQMRAD8A3ADknKTbbYR1t0Zyk7e9GMG3y3QOV8MDfxEoW+xhLPJvTpexnOTeuyJ29IK6YZnaU9p9zZnNDFJxdujbG34SctANmUv3mqd9iMkUvOu3IHRD+NfBMP4vwLHlTik9Dh/D+AMcn7V8o6kcmZ1BP3Kj+pbe0qA2xf7fICwu036sAMp5opNcmaXtZk9l4m267evoKRsldKh0oryoTlulwCeyK5siqTNcNdNl9P8AkQnUW0kBcEm+dDzPyg9RSROSUemm9lQocclyrofozONN89hzfkSXLMtKSUY9lXcqGWDx1e6MvE6UrSZoop7pGolY54tzXwSsUk60bZNNS7IePzb1RA8MowUk5JbAUscE9p77pgVHNji5vXbub+WKqP8AwaSjGkJt+iAl74HF2J75BOmRWktJS9DPGurIvtlpqqfAlFLcJNMqJzZPN0rSMG9mssM227TYvBl3pfkAhLi1dA52yVBp8ofR7oBqR0quhNcUcrjW7OjG7x9NlqQ5ocElHyqkEtLb4McmZxdQdGWm62q7gcqzSvT2/YCo0asl2vgUXOqlGXzRThKtJ/DIJsmUqXuU4yrUHZKxz7x2AoSa76NHJKN9xLFJcoJYptcL7KDxJLaRUcjlG6qiHCaXBXmcOmmvklxZqLGrZSwya/dEpYnHmSoIzlBtJx2i4OWPbSaLqTVKvlsPDbjTkkWFQ/1Ef6GblBu+h/ZT/TyXEkyPCyLaj9ANOF2oP7Aml1XNSQAdwgAyoAACkDloACIc36InxZeiAChPLL2+hPJJ+n0ABEqTTtJL8DeWf9gAol5Z/wBmS8s/UAAJZJO1egAAP//Z","edutech-ai":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIDAQT/xAApEAACAgEEAAYCAgMAAAAAAAAAAQIRAxIhMUETIlFhcYEEMkKRI1Kh/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAEC/8QAFxEBAQEBAAAAAAAAAAAAAAAAABEBIf/aAAwDAQACEQMRAD8Ap4KXDaDwpdT/ALLdABCOrezVfqPWzMS3AnJtJ7mYZSk5W+hsi/YXCv2+CCtL5N46NoTNLRik+yhJZtvKt7rcR5cnsvoVxUYx3V3/AGD4Zcw1uufcmK02/Nb+WNGKorGG19ljNTSSVJIxx26KNWn7Eu9+CwpXS4YGtq+NgIruAhjzqbpbP3FzZJ6tCdLtoyq3qauSMMqjGpTsbxNS/wAe7f8AwDMmNScnVu9gxwcXJvtBj1U9TsdcP4AYnkip7Sbr0FnnUZNJXQLIp78MA8FN/HHsSknuuzo3ojPJ5dlT9RhrP1VcsZzaSokmqNTT5f0azWdNKZkW5bCyrTSFi6dMtIotgJ6rsCUiuKCi73sXL/JqSLp27VavViZFOWycXfOxjGtctj45yU00N4Li7a2KxhcW4p/QUzyRa3i/o3HKK2Wp36kp3d0vkZOscmp3KtlfBUQyx05GvceKlCGpPdh+O28jvddnVKMZRprkiuRSlKSTk9x3hl/sLpcM1P6OiUn0t36lRzvFNGOElu+jouXojdLknar7HRxXb5G363GzY9D1XyLilWRXwwMW3TA6nFegCkTi3dDptckq0u6v3KRW5BTUa5PS1GrJtr1RqlXQAhcsVp2W/wAFE02n2GSHiVTqi0Sjlr+KKatk+mO4RfKTM8ONUtiKxOMmrS2CadppNok8ORfrNNe+xWHljTdvsIZKueQ1CSmk+UwUlVMKT8i9HRy8HTkVxdOznUZN1TA64z1wTS3AzGtEUuwAkm1VD3sgAqBq0TlJx4YAALJLTexfFkk6TACCwABQGUn0AALKEX0ic4KKtNgAE7C2gABM0msjpgAAf//Z","wellness-life":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIDAQT/xAArEAACAgAFAgUFAAMAAAAAAAAAAQIRAxIhMUFRcQQiNGGREyMyM4EkodH/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAWEQEBAQAAAAAAAAAAAAAAAAAAAUH/2gAMAwEAAhEDEQA/AJ5KaaWnc6sN/bj2OPLJNW/9nZh/rivYhTWn2C0Ls9TXrsBj3tcEMR/5UO3/AEt+Wq2IT9VDsVF76kvoYfOb5K/wWkt9QINKM6jaa6sJO5LV7dTHrKlyE9GqXGhFbGCyXepqglbzJ+yFTlVN/Brji2lmCruK1pLdk0kmt9+RcslNJu+Sf029eCCmP5pRpqkuoBHC0evFgUZOcZNVpRbDx4tRhqnVHLiRobBh54thHZ3QzpkcbFyLbV7EY+IkujCOytDln6qJaE88VJEZeqiBe6TsWOLGUsrtP3MxZKEG2Qcvuw77hWv9ib2sMZxz2uOiMlriU2NNZZPogETTaeo7xo5r83wQcnY+G3J5XrewVTPGU7TfwJKfkyq9+hSkorrZPRN3s0BPN3AaUNdAAHNvkvgTT0rzHKUwm1JNLYqH8U05LsQHxJ55XRkVclYHVgLLBfIk/VR/haKtKuEQxLXiE+QabGi56WTcG5x6IZ4vlTy6gp3sqIol+5fwzxH5tmSk1P34FxJNrV2ETNi2mq0ZgFF452rbtCptusqf8NhiaZeo8YtJ2q7kU10vcCbYEVFrpsUgvtOt2xL6pDKdKuCoSmPhxd2+Dc5sZ26oCqk+HROaaeaSl3bNumVlFYuGszrLuBy7y9kain04602xYRbeqAV6ttPWqFb4OmOAnuqRzYiqckuGIUtgFPoBUadbxlLD01b3ORRbGSpb/BFNJgJIAFAAKjQW4AFVizZNrC05YAQTjJxdoZYknKtEAAikMSWdxbtHNyAFRQAAy0wxsAKVnAABUf/Z","edu-institution":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAEDAgT/xAApEAACAgECBQMEAwAAAAAAAAAAAQIRIQMxEhNBUWEiMnEjQoGRUqHB/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAEC/8QAGBEBAQEBAQAAAAAAAAAAAAAAABEBITH/2gAMAwEAAhEDEQA/AOoBAVDATdIjKTksgXAlHUxTX5NqSezAYCAAEaEBkBuSju6FdxtdgADEdTpJGm10yKQARm9Ryq6XgBR1BeaJznXt3JcT6PJKOiXtZHowepJqm0LjxVIZoB9BJoG/Tgo3CbbSu0UbS3OVW3tnwbq16s0BR6q+1WZbnLwhXVUkhO2+4DqKbt2ykcxVE3Ft4RSGI0Bzp8M2USW7ZOa+o15NxeOhFE/cmAtTZPyAxN9a1L3kkvgk5er/AEUpuq4rXYzl72yK05Z8DtMm2wW5IKBdKk2JvGQtXRoOGJb7lLjm2YUYd2x8ULfp+bYGuNUmo38ieo1XlAtSLwkv0YepHG36A3Kez7oppO4v5JLWpYoOfJ9UEPUi+ZhMajJZeETlOTeWYbb3ZKq8qcHTugILGeJ/gBTehwa3TXyO6+86+GPZC5cf4r9AcdZ8d6CuuaO1RS+1BjwByJXVtpGlBuVp3W51UgSrYo5VpzUm+9goTp2nlHWIg5NPTkpW4szy517WdtLsZltXDRRyqLUaYKKT2f5KctXfFsHKbeZX8GROTvovFCddP6LyiqrJnlxrCFHO2BaWl5AXB0oYAaAAARSBO2AAMAAqAYAQKk90Jwi+gAUYkuF4bMtv5ACKcUpboAAI/9k=","interview-people":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAEDAgT/xAApEAACAgEDAwMEAwEAAAAAAAAAAQIRAxIhMQRBUSJhgRMjQnEUMlKR/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAEC/8QAFREBAQAAAAAAAAAAAAAAAAAAABH/2gAMAwEAAhEDEQA/ALnPkzScqjsi2R1jl+jisDbyTf5M3jztbS3XkjYt7A707VrgGKC0xSGwABABqIznyTkpbSaM6m+ZP/pKR1Ccorlo5NVutLYaknTVFHU8kF+SMvNDyR2atG4RTTsixp5l2iwMTSUqXgALtWmn3OBqm0+x1TzqO0d2czeptvlmkKKbZeMFri0thY5KqpJlMa3vwZVUTGJ8FQhMYAQy/wBjC38nRojKW6sHCKSpEUYY1ctNJ8fol1C/NKvJTHK4tcNPhmM81XkCeJtppIopTWyaRnpH65FHxPbuwMPU3bYFIv7YAc1hYgNIZuOaUO9rwyYgO6E1OCkhvgh0st3H5LvggQhiAlklJS9LolOcm6cmUyr1ImoasjjfyRVOmhqcn4VB1MaUUW6eGiDvyR6t/civYohwWxR1QIFsUkoV7hBNeqvAGnKGpuV+wEVADThNcxZk0gAQEG8ctE1I7G1Sfng4UXxZUoqMu3DAuIdMVBWdaUmn+znjOpye9N9iuTC5StOjP0Xpog6McrW26OXPPXktKtq3KqD+lp79mS+hPygJFcaaS9xrppvuUXTS/wBV8FROSqQFv477yv4AkVlNhKKnF2t0uQAqOUKAAAYAB2qTaV+BgBFAAADodAADRoAKhMAAD//Z","opinion":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIDAQT/xAAqEAACAgIBAQgCAgMAAAAAAAAAAQIRAyExEhMiMkFRYXGBUpEUQiMzsf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFREBAQAAAAAAAAAAAAAAAAAAAAH/2gAMAwEAAhEDEQA/AIvkzGu8gtWbGSTvkBr9yf8Af7H64egmuq78wOp8HPPxMd5ouhG4t2QVjuDXsSlkddMXoZTSi0uWqJxi38FDRk6e7HhLqkmEcKrkSMuiXwQWl4GbFf8AETeVNVRkcqiq2UM/9yHmk19EXkXWpbGeZNcMAn4UAjyJxrYEC0FHQkqoScfMokot8BKLjyh8fJuWm1b1YCJaCh5KEYvbZJyYD1QyVLTI2WSfCRFikXK17kci/wAki0m4q2vY529iFMscmrSBQbTaWkVwytdPoZj8EiojQUX6VXBKUe80gF0ANVdgBTtvYx5bVULGDboZ4mldoBYzUXdBKal5B0MyUekAlK1oUAADpx6p1o5jrx6SfsBuWPaQ7r2jkkmnTVM6FkjHI71RPLLtJt+vAGQn0boI5KTSXIq1pj9mqAztPn9mdW72Y1ToABysDAAvBPqb9jZLusSHJuWTTpLVAYuBcr2kZ1S/EWTbdtACTfCs145Vfn6DQdxr32VhyBzNNOmqZ0p6+hcmLJLJ1KOikYSa4A5snjMTKzwZJO1FfsX+PkS8P6AVMrB3El0STpxaHja1VfYDabfIk1W0N9tfKNWOU14lXyBKn6AX7GX5IAJx0+TZcWAEVMZJAARq7rTWmM80/UALCs7bI/7B2s/yAAGWWXqHXL1YAAdUny2FKgAiivkeDaQAA3UwAAP/2Q==","press-release":"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAFk9Q05DOFlOSE5kXllphd6QhXp6hf/CzaHe////////////////////////////////////////////////////2wBDAV5kZIV1hf+QkP//////////////////////////////////////////////////////////////////////////wAARCABEAHgDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAECAwT/xAAnEAACAgIBBAEDBQAAAAAAAAAAAQIRITEDEkFRcQQTYZEjMjND8f/EABYBAQEBAAAAAAAAAAAAAAAAAAABAv/EABcRAQEBAQAAAAAAAAAAAAAAAAABEUH/2gAMAwEAAhEDEQA/AGAARQIYASJlCYGIwGRUy0SXLRBUNK/L+yG4x08P2b8DUeNYy9sz+RF9aaWwMWqYhu06YioAAAO0CeuN1eSiKQADeLAQPRK5It0hyaSywMhkjIologt6IKjq4ZfpxXhBJpvOTGEpJVdJm8YxUXOTtLwMNcvKmpu1sg1nL6sm5f4RKLj6NIS2ALYDK1LOmsmilOnLOCLql4NOXkXTS2zKCcuuop7yxqLXHJduxjHEr2aR5G55eyoz6qyjWa60mmTNx7LLHx24tXrIEJUyiYu3RRFKWidsp6JQGkf3L8jm6hGC9slPJLZpBoTyF2wAS2Bv8fjUpS6kmqASjDuXzKpL0NcPI89DOn6KeZJttdyDlfS4LGe4LDs2n8dZakkq0YgDSZSkksKn5JABun9mDVPDsQAJ6E1SKB5ATE2OkGEUShrYNhEg1Vrim15QB/RL2gIrRTa0wfLOtgBFZS5pfYh8snuvwAFQrGAAArACgsAAIQgAAKjsAAt/xP2AAZjT/9k="};
-const prefixToCategory: Record<string, string> = { life: 'lifelong-education', career: 'career-dev', senior: 'senior-education', ai: 'edutech-ai', well: 'wellness-life', inst: 'edu-institution', people: 'interview-people', opinion: 'opinion', press: 'press-release' };
-function e(value: string) { return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-function h(value: string) { let hash = 0; for (let i = 0; i < value.length; i += 1) { hash = (hash << 5) - hash + value.charCodeAt(i); hash |= 0; } return Math.abs(hash); }
-function seed(id: string) { return eduArticleSeeds.find((item) => item.id === id || item.slug === id); }
-function categoryFromId(id: string) { return prefixToCategory[id.split('-')[0] ?? 'life'] ?? 'lifelong-education'; }
-export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+function escapeXml(value: string) {
+  return value.replace(/[<>&"']/g, (char) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[char] ?? char));
+}
+
+function hash(value: string) {
+  let output = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    output = (output << 5) - output + value.charCodeAt(index);
+    output |= 0;
+  }
+  return Math.abs(output);
+}
+
+function themeFromId(id: string) {
+  const prefix = id.split('-')[0] ?? 'life';
+  return categoryThemes[prefix] ?? categoryThemes.life;
+}
+
+function buildSvg(id: string) {
+  const theme = themeFromId(id);
+  const seed = hash(id);
+  const a = 120 + (seed % 260);
+  const b = 620 + (seed % 180);
+  const c = 950 + (seed % 260);
+  const label = escapeXml(theme.label);
+  const safeId = escapeXml(id);
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="${label} 기사 썸네일">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${theme.from}"/>
+      <stop offset="1" stop-color="${theme.to}"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="28%" cy="18%" r="72%">
+      <stop offset="0" stop-color="${theme.accent}" stop-opacity="0.52"/>
+      <stop offset="0.52" stop-color="#ffffff" stop-opacity="0.09"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#glow)"/>
+  <circle cx="${a}" cy="${a}" r="250" fill="#fff" opacity="0.08"/>
+  <circle cx="${c}" cy="${b}" r="360" fill="#fff" opacity="0.07"/>
+  <path d="M0 690 C280 560 450 760 750 610 C1020 475 1230 540 1600 395 L1600 900 L0 900 Z" fill="#ffffff" opacity="0.08"/>
+  <g filter="url(#shadow)">
+    <rect x="108" y="118" width="1384" height="664" rx="34" fill="#ffffff" opacity="0.13"/>
+    <rect x="145" y="155" width="1310" height="590" rx="26" fill="#ffffff" opacity="0.08" stroke="#ffffff" stroke-opacity="0.28"/>
+  </g>
+  <g transform="translate(210 232)">
+    <rect x="0" y="0" width="410" height="284" rx="20" fill="#ffffff" opacity="0.92"/>
+    <rect x="36" y="46" width="338" height="28" rx="14" fill="${theme.to}" opacity="0.22"/>
+    <rect x="36" y="103" width="254" height="20" rx="10" fill="#0f172a" opacity="0.18"/>
+    <rect x="36" y="144" width="310" height="18" rx="9" fill="#0f172a" opacity="0.13"/>
+    <rect x="36" y="184" width="232" height="18" rx="9" fill="#0f172a" opacity="0.12"/>
+    <circle cx="326" cy="215" r="45" fill="${theme.accent}" opacity="0.95"/>
+  </g>
+  <g transform="translate(725 220)">
+    <rect x="0" y="0" width="520" height="330" rx="24" fill="#0f172a" opacity="0.58" stroke="#ffffff" stroke-opacity="0.28"/>
+    <circle cx="104" cy="110" r="48" fill="${theme.accent}" opacity="0.85"/>
+    <circle cx="260" cy="110" r="48" fill="#ffffff" opacity="0.22"/>
+    <circle cx="416" cy="110" r="48" fill="#ffffff" opacity="0.16"/>
+    <path d="M104 110 L260 110 L416 110" stroke="#ffffff" stroke-width="7" opacity="0.4" stroke-linecap="round"/>
+    <rect x="72" y="214" width="366" height="22" rx="11" fill="#ffffff" opacity="0.18"/>
+    <rect x="72" y="258" width="258" height="18" rx="9" fill="#ffffff" opacity="0.13"/>
+  </g>
+  <text x="145" y="112" font-family="Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="8" fill="#fff" opacity="0.75">EDU JOURNAL</text>
+  <text x="145" y="675" font-family="Arial, sans-serif" font-size="44" font-weight="900" fill="#fff">${label}</text>
+  <text x="145" y="728" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#fff" opacity="0.76">교육 현장과 정책 흐름을 전하는 에듀저널 자료 이미지</text>
+  <text x="1260" y="705" text-anchor="middle" font-family="Arial, sans-serif" font-size="86" font-weight="900" fill="#fff" opacity="0.92">${escapeXml(theme.mark)}</text>
+  <text x="1455" y="112" text-anchor="end" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#fff" opacity="0.48">${safeId}</text>
+</svg>`;
+}
+
+export async function GET(_: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
-  const articleId = decodeURIComponent(id);
-  const item = seed(articleId);
-  const category = item?.categorySlug ?? categoryFromId(articleId);
-  const title = item?.title ?? '교육 현장 자료사진';
-  const image = images[category] ?? images['lifelong-education'];
-  const hash = h(`${articleId}-${title}`);
-  const hue = hash % 360;
-  const safeTitle = e(title.length > 32 ? `${title.slice(0, 32)}…` : title);
-  const safeCategory = e(category.replace(/-/g, ' ').toUpperCase());
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="${safeTitle}"><defs><filter id="up"><feColorMatrix type="saturate" values="1.15"/></filter><linearGradient id="shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#020617" stop-opacity="0.72"/><stop offset="0.56" stop-color="#020617" stop-opacity="0.12"/><stop offset="1" stop-color="#020617" stop-opacity="0.36"/></linearGradient></defs><image href="data:image/jpeg;base64,${image}" width="1280" height="720" preserveAspectRatio="xMidYMid slice" filter="url(#up)"/><rect width="1280" height="720" fill="url(#shade)"/><rect width="1280" height="720" fill="hsl(${hue} 80% 38%)" opacity="0.${16 + (hash % 15)}"/><text x="70" y="92" font-family="Arial, sans-serif" font-size="24" font-weight="900" letter-spacing="5" fill="white" opacity="0.86">EDU JOURNAL</text><text x="70" y="606" font-family="Arial, sans-serif" font-size="42" font-weight="900" fill="white">${safeTitle}</text><text x="70" y="660" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="white" opacity="0.78">${safeCategory} · 에듀저널 자료 이미지</text></svg>`;
-  return new NextResponse(svg, { headers: { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=31536000, immutable' } });
+  const svg = buildSvg(decodeURIComponent(id));
+
+  return new Response(svg, {
+    headers: {
+      'Content-Type': 'image/svg+xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=31536000, immutable'
+    }
+  });
 }
