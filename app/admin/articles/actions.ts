@@ -25,6 +25,17 @@ function parseSourceUrls(formData: FormData) {
   return items.length ? items : null;
 }
 
+async function resolveCategoryId(categorySlug: string | null) {
+  if (!categorySlug) return null;
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('slug', categorySlug)
+    .maybeSingle();
+  return data?.id ?? null;
+}
+
 export async function createArticle(formData: FormData) {
   const title = String(formData.get('title') ?? '').trim();
   const content = String(formData.get('content') ?? '').trim();
@@ -34,6 +45,8 @@ export async function createArticle(formData: FormData) {
   const thumbnail_url = optionalText(formData, 'thumbnail_url');
   const image_source_name = optionalText(formData, 'image_source_name');
   const image_license = optionalText(formData, 'image_license');
+  const categorySlug = optionalText(formData, 'category_slug');
+  const category_id = await resolveCategoryId(categorySlug);
   const imageRightsConfirmed = formData.get('image_rights_confirmed') === 'true';
   const hasImageRisk = formData.get('image_contains_people_or_trademarks') === 'true';
   const isImportedArchive = formData.get('is_imported_archive') === 'true';
@@ -45,6 +58,8 @@ export async function createArticle(formData: FormData) {
   const structure = analyzeArticleStructure({ title, summary, content, articleType: article_type });
 
   const warnings: string[] = [];
+  if (!title || !content) warnings.push('제목과 본문 확인 필요');
+  if (!category_id) warnings.push('카테고리 연결 확인 필요');
   if (thumbnail_url && (!image_source_name || !image_license)) warnings.push('대표 이미지 출처/라이선스 확인 필요');
   if (thumbnail_url && !imageRightsConfirmed) warnings.push('이미지 권리 확인 체크 필요');
   if (hasImageRisk) warnings.push('인물/상표 포함 이미지 수동 검수 필요');
@@ -63,6 +78,7 @@ export async function createArticle(formData: FormData) {
     subtitle: optionalText(formData, 'subtitle'),
     summary,
     content,
+    category_id,
     article_type,
     status,
     editorial_status,
@@ -91,6 +107,8 @@ export async function createArticle(formData: FormData) {
 
   revalidatePath('/admin/articles');
   revalidatePath('/articles');
+  revalidatePath('/');
+  if (categorySlug) revalidatePath(`/category/${categorySlug}`);
 
   if (error) return { ok: false, message: error.message };
 
