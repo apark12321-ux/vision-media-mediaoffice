@@ -4,7 +4,8 @@ const principles = [
   '교육 현장의 변화와 제도 정보를 독자가 이해하기 쉬운 언어로 전달합니다.',
   '확인 가능한 사실과 공식 안내를 우선하고, 추측성 표현과 과장된 문구를 줄입니다.',
   '오류가 확인된 기사에는 정정·수정 이력을 남기고 독자의 제보를 검토합니다.',
-  '청소년과 학습자의 권익을 해칠 수 있는 선정적·자극적 표현을 배제합니다.'
+  '청소년과 학습자의 권익을 해칠 수 있는 선정적·자극적 표현을 배제합니다.',
+  '광고성 자료와 보도자료는 편집 기준에 따라 구분해 검토합니다.'
 ];
 
 const coverage = [
@@ -13,7 +14,8 @@ const coverage = [
   '시니어·디지털 문해교육',
   '에듀테크·AI 학습도구',
   '교육기관 운영과 지역 교육 소식',
-  '교육 전문가 인터뷰와 오피니언'
+  '교육 전문가 인터뷰와 오피니언',
+  '교육 관련 보도자료와 정책 안내'
 ];
 
 export default function AboutPage() {
@@ -59,8 +61,11 @@ export default function AboutPage() {
           <dt className="font-black text-gray-900">발행·운영</dt><dd>알고파트너스</dd>
           <dt className="font-black text-gray-900">대표자</dt><dd>박예준</dd>
           <dt className="font-black text-gray-900">발행인·편집인</dt><dd>박예준</dd>
+          <dt className="font-black text-gray-900">사업자등록번호</dt><dd>450-07-03104</dd>
+          <dt className="font-black text-gray-900">통신판매업신고번호</dt><dd>제2025-인천서구-3321호</dd>
+          <dt className="font-black text-gray-900">인터넷신문 등록번호</dt><dd>등록 신청 예정</dd>
           <dt className="font-black text-gray-900">소재지</dt><dd>인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호</dd>
-          <dt className="font-black text-gray-900">문의</dt><dd>사이트 하단 문의 및 기사제보 페이지를 통해 접수</dd>
+          <dt className="font-black text-gray-900">문의</dt><dd>contact@edujournal.kr</dd>
         </dl>
       </section>
     </main>
