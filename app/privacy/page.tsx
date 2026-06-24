@@ -32,6 +32,10 @@ const sections = [
   {
     title: '8. 개인정보 보호책임자',
     body: '개인정보 보호책임자는 박예준입니다. 개인정보 관련 문의, 불만 처리, 피해 구제 요청은 문의 페이지를 통해 접수할 수 있습니다.'
+  },
+  {
+    title: '9. 언론 업무 관련 개인정보 관리',
+    body: '기사제보, 보도자료, 정정·반론 신청 과정에서 제공된 정보는 해당 요청을 확인하고 처리하기 위한 범위에서만 이용합니다.'
   }
 ];
 
@@ -55,7 +59,7 @@ export default function PrivacyPage() {
 
       <section className="mt-10 border bg-gray-50 p-6 text-sm leading-7 text-gray-700">
         <h2 className="text-xl font-black text-brand-navy">시행 및 변경</h2>
-        <p className="mt-3">본 방침은 2026년 6월 23일부터 적용합니다. 법령 또는 서비스 운영 기준이 변경되는 경우 본 페이지를 통해 개정 내용을 고지합니다.</p>
+        <p className="mt-3">본 방침은 2026년 6월 24일부터 적용합니다. 법령 또는 서비스 운영 기준이 변경되는 경우 본 페이지를 통해 개정 내용을 고지합니다.</p>
       </section>
     </main>
   );
