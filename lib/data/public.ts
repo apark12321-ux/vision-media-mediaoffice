@@ -8,7 +8,15 @@ const fallbackSettings: SiteSettings = {
   operator_name: '알고파트너스',
   business_name: '알고파트너스',
   representative_name: '박예준',
+  business_registration_number: '450-07-03104',
+  mail_order_registration_number: '제2025-인천서구-3321호',
   media_registration_status: 'preparing',
+  media_registration_number: '등록 신청 예정',
+  publisher_name: '박예준',
+  editor_name: '박예준',
+  youth_protection_manager: '박예준',
+  privacy_manager: '박예준',
+  address: '인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호',
   contact_email: 'contact@edujournal.kr',
   contact_phone: '확인 후 표기'
 };
@@ -30,7 +38,7 @@ function category(slug: string) {
 }
 
 function realPhotoThumbnail(articleId: string, categorySlug: string) {
-  const seed = encodeURIComponent(`edujournal-${categorySlug}-${articleId}`);
+  const seed = encodeURIComponent(`edujournal-photo-${categorySlug}-${articleId}`);
   return `https://picsum.photos/seed/${seed}/1600/900`;
 }
 
@@ -40,7 +48,7 @@ function text(summary: string) {
 
 function toArticle(seed: (typeof eduArticleSeeds)[number]) {
   const cat = category(seed.categorySlug);
-  const photo = seed.thumbnailUrl || realPhotoThumbnail(seed.id, seed.categorySlug);
+  const photo = realPhotoThumbnail(seed.id, seed.categorySlug);
 
   return {
     id: seed.id,
