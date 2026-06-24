@@ -1,4 +1,5 @@
 import { eduArticleSeeds } from '@/lib/data/edu-articles';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Article, Category, Product, SiteSettings } from '@/types/database';
 
 const fallbackSettings: SiteSettings = {
@@ -64,6 +65,7 @@ function toArticle(seed: (typeof eduArticleSeeds)[number]) {
     image_source_name: seed.imageSourceName || '공개 사진 자료',
     image_source_url: photo,
     author_name: seed.author ?? '에듀저널 편집부',
+    is_sponsored: ['brand_interview', 'sponsored', 'advertorial'].includes(seed.articleType ?? 'normal'),
     tags: seed.tags,
     published_at: seed.publishedAt,
     created_at: seed.publishedAt,
@@ -74,15 +76,127 @@ function toArticle(seed: (typeof eduArticleSeeds)[number]) {
 
 export const fallbackArticles = eduArticleSeeds.map(toArticle);
 
-export async function getPublicSiteSettings(): Promise<SiteSettings> { return fallbackSettings; }
-export async function getCategories(): Promise<Category[]> { return fallbackCategories; }
-export async function getArticles(limit?: number): Promise<Article[]> { return fallbackArticles.slice(0, limit ?? fallbackArticles.length); }
-export async function getPublishedArticles(limit?: number): Promise<Article[]> { return getArticles(limit); }
-export async function getArticlesByCategory(slug: string, limit?: number): Promise<Article[]> {
-  const items = fallbackArticles.filter((article) => article.categories?.slug === slug);
-  return items.slice(0, limit ?? items.length);
+function hasSupabaseEnv() {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
+
+async function safeSupabase() {
+  if (!hasSupabaseEnv()) return null;
+  try {
+    return await createSupabaseServerClient();
+  } catch {
+    return null;
+  }
+}
+
+function normalizeArticle(row: any): Article {
+  const fallbackCategory = row.categories ?? fallbackCategories.find((item) => item.id === row.category_id) ?? null;
+  return {
+    ...row,
+    article_type: row.article_type ?? 'normal',
+    status: row.status ?? 'draft',
+    author_name: row.author_name ?? '에듀저널 편집부',
+    is_sponsored: Boolean(row.is_sponsored),
+    created_at: row.created_at ?? row.published_at ?? new Date().toISOString(),
+    updated_at: row.updated_at ?? row.created_at ?? row.published_at ?? new Date().toISOString(),
+    categories: fallbackCategory
+  } as Article;
+}
+
+export async function getPublicSiteSettings(): Promise<SiteSettings> {
+  const supabase = await safeSupabase();
+  if (!supabase) return fallbackSettings;
+
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('*')
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return fallbackSettings;
+  return { ...fallbackSettings, ...data } as SiteSettings;
+}
+
+export async function getCategories(): Promise<Category[]> {
+  const supabase = await safeSupabase();
+  if (!supabase) return fallbackCategories;
+
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .order('sort_order', { ascending: true });
+
+  if (error || !data?.length) return fallbackCategories;
+  return data as Category[];
+}
+
+export async function getArticles(limit?: number): Promise<Article[]> {
+  const supabase = await safeSupabase();
+  if (!supabase) return fallbackArticles.slice(0, limit ?? fallbackArticles.length);
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*, categories(*)')
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(limit ?? 200);
+
+  if (error || !data?.length) return fallbackArticles.slice(0, limit ?? fallbackArticles.length);
+  return data.map(normalizeArticle);
+}
+
+export async function getPublishedArticles(limit?: number): Promise<Article[]> {
+  const supabase = await safeSupabase();
+  if (!supabase) return fallbackArticles.slice(0, limit ?? fallbackArticles.length);
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*, categories(*)')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(limit ?? 200);
+
+  if (error || !data?.length) return fallbackArticles.slice(0, limit ?? fallbackArticles.length);
+  return data.map(normalizeArticle);
+}
+
+export async function getArticlesByCategory(slug: string, limit?: number): Promise<Article[]> {
+  const supabase = await safeSupabase();
+  if (!supabase) {
+    const items = fallbackArticles.filter((article) => article.categories?.slug === slug);
+    return items.slice(0, limit ?? items.length);
+  }
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*, categories!inner(*)')
+    .eq('status', 'published')
+    .eq('categories.slug', slug)
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(limit ?? 100);
+
+  if (error || !data?.length) {
+    const items = fallbackArticles.filter((article) => article.categories?.slug === slug);
+    return items.slice(0, limit ?? items.length);
+  }
+
+  return data.map(normalizeArticle);
+}
+
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const supabase = await safeSupabase();
+  if (!supabase) return fallbackArticles.find((article) => article.slug === slug || article.id === slug) ?? null;
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*, categories(*)')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (!error && data) return normalizeArticle(data);
   return fallbackArticles.find((article) => article.slug === slug || article.id === slug) ?? null;
 }
+
 export async function getProducts(): Promise<Product[]> { return []; }
