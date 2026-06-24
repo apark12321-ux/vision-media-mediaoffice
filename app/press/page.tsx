@@ -23,6 +23,12 @@ export default function PressPage() {
       <h1 className="mt-2 text-4xl font-black text-brand-navy">보도자료 접수</h1>
       <p className="mt-5 text-lg leading-9 text-gray-700">에듀저널은 교육기관, 평생교육 과정, 자격증, 에듀테크, 시니어 학습 관련 보도자료를 접수합니다.</p>
 
+      <section className="mt-8 rounded border border-brand-navy bg-white p-6 text-sm leading-7 text-gray-700">
+        <h2 className="text-xl font-black text-brand-navy">접수 이메일</h2>
+        <p className="mt-3 font-bold text-gray-900">contact@edujournal.kr</p>
+        <p className="mt-2">메일 제목에 [보도자료]를 표시하고, 원문 자료와 이미지 사용 가능 여부를 함께 보내 주세요.</p>
+      </section>
+
       <section className="mt-10 border-t-2 border-brand-navy pt-7">
         <h2 className="text-2xl font-black text-brand-navy">제출 자료</h2>
         <ul className="mt-5 grid gap-3 text-sm leading-7 text-gray-700 sm:grid-cols-2">
