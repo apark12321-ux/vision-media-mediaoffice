@@ -14,7 +14,8 @@ const checklist = [
   '연락 가능한 이메일 또는 전화번호',
   '제보 내용의 발생 시점과 장소',
   '확인 가능한 자료, 사진, 문서 또는 공식 링크',
-  '익명 처리 필요 여부'
+  '익명 처리 필요 여부',
+  '이해관계 또는 보도자료성 자료 여부'
 ];
 
 export default function ReportPage() {
@@ -23,6 +24,12 @@ export default function ReportPage() {
       <p className="text-sm font-black tracking-[0.22em] text-brand-gold">REPORT</p>
       <h1 className="mt-2 text-4xl font-black text-brand-navy">기사제보</h1>
       <p className="mt-5 text-lg leading-9 text-gray-700">에듀저널은 교육 현장의 변화, 제도 개선, 학습자 사례, 교육기관 운영 소식, 기사 오류와 정정 요청을 접수합니다.</p>
+
+      <section className="mt-8 rounded border border-brand-navy bg-white p-6 text-sm leading-7 text-gray-700">
+        <h2 className="text-xl font-black text-brand-navy">제보 접수 이메일</h2>
+        <p className="mt-3">contact@edujournal.kr</p>
+        <p className="mt-2">메일 제목에 [기사제보]를 표시하고, 기사화 가능 여부를 확인할 수 있는 자료를 함께 보내 주세요.</p>
+      </section>
 
       <section className="mt-10 border-t-2 border-brand-navy pt-7">
         <h2 className="text-2xl font-black text-brand-navy">제보 가능한 분야</h2>
