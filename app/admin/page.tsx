@@ -1,82 +1,158 @@
 import Link from 'next/link';
-import { StatCard } from '@/components/ui/stat-card';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
 
-const quickModules = [
-  { title: '기사 작성·발행', desc: '장문 기사, 대표 이미지, 중간 이미지, 제휴 고지, 예약 발행을 관리합니다.', href: '/admin/articles', badge: '편집국' },
-  { title: '카테고리·섹션', desc: '생활경제, 지역상권, 교육, 시니어, 건강, 창업 등 매체 섹션을 정리합니다.', href: '/admin/categories', badge: '편성' },
-  { title: '미디어 보관함', desc: '대표 이미지, 본문 삽입 이미지, 캡션, 출처, 라이선스 정보를 관리합니다.', href: '/admin/media', badge: '이미지' },
-  { title: '보도자료 관리', desc: '외부 보도자료와 기관 자료를 접수하고 기사화 여부를 검수합니다.', href: '/admin/press', badge: '자료' },
-  { title: '제보·문의', desc: '기사제보, 광고 문의, 브랜드 인터뷰 신청을 리드로 관리합니다.', href: '/admin/leads', badge: '접수' },
-  { title: '광고·제휴 CRM', desc: '광고주, 상담 단계, 주문, 납품, 후속 연락을 추적합니다.', href: '/admin/clients', badge: '비즈니스' },
-  { title: '컴플라이언스', desc: '기사형 광고 고지, 금지 표현, 저작권·초상권, 개인정보 노출을 점검합니다.', href: '/admin/compliance', badge: '검수' },
-  { title: '애드센스 준비', desc: '승인 전 광고 미노출, ads.txt, 정책 페이지, 콘텐츠 품질 체크를 관리합니다.', href: '/admin/adsense', badge: '수익화' },
-  { title: '사이트 설정', desc: '제호, 사업자 정보, 통신판매업, 인터넷신문 등록정보, 푸터 고지를 관리합니다.', href: '/admin/settings', badge: '설정' }
+const stats = [
+  ['오늘 발행 대기', '12건', '편집·검수'],
+  ['전체 기사 DB', '540건+', '날짜별 보강'],
+  ['이미지 자료', '기사별 연결', '실제 사진'],
+  ['접수함', '제보·보도자료', '운영 창구']
 ];
 
-export default async function AdminDashboardPage() {
-  const supabase = await createSupabaseServerClient();
-  const [leads, articles, clients, orders] = await Promise.all([
-    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', '신규'),
-    supabase.from('articles').select('id', { count: 'exact', head: true }).in('status', ['draft', 'review']),
-    supabase.from('clients').select('id', { count: 'exact', head: true }).in('status', ['관심 있음', '상담 완료', '결제 대기']),
-    supabase.from('orders').select('amount,payment_status')
-  ]);
-  const paid = (orders.data ?? []).filter((o: any) => o.payment_status === 'paid').reduce((sum: number, o: any) => sum + (o.amount ?? 0), 0);
+const cmsModules = [
+  {
+    title: '기사 작성·편집 CMS',
+    desc: '제목, 부제목, 리드문, 본문, 대표 이미지, 본문 이미지, 기자명, 태그, 예약 발행 상태를 관리합니다.',
+    href: '/admin/articles',
+    badge: '편집국'
+  },
+  {
+    title: '기사 배치·섹션 편성',
+    desc: '메인 톱뉴스, 최신뉴스, 랭킹뉴스, 카테고리 묶음, 인터뷰·오피니언 노출 순서를 관리합니다.',
+    href: '/admin/categories',
+    badge: '편성'
+  },
+  {
+    title: '미디어 DB',
+    desc: '기사 대표 사진, 캡션, 이미지 출처, 라이선스, 사용 위치를 함께 기록해 썸네일 깨짐과 권리 문제를 줄입니다.',
+    href: '/admin/media',
+    badge: '이미지'
+  },
+  {
+    title: '보도자료·제보 접수',
+    desc: '기관 보도자료, 독자 제보, 정정보도 요청, 반론보도 요청을 접수하고 처리 상태를 관리합니다.',
+    href: '/admin/press',
+    badge: '접수'
+  },
+  {
+    title: '기자·운영자 권한',
+    desc: '발행인, 편집인, 기자, 외부 필진, 운영자 역할을 분리해 기사 작성과 공개 권한을 구분합니다.',
+    href: '/admin/system',
+    badge: '권한'
+  },
+  {
+    title: '엠바고·예약 발행',
+    desc: '작성중, 검수중, 예약, 공개, 보류 상태를 나누고 지정 시각에 공개할 기사 흐름을 관리합니다.',
+    href: '/admin/system',
+    badge: '발행'
+  },
+  {
+    title: '정책·등록정보 관리',
+    desc: '제호, 운영사, 사업자등록번호, 통신판매업신고번호, 인터넷신문 등록번호, 발행인·편집인 정보를 관리합니다.',
+    href: '/admin/settings',
+    badge: '등록'
+  },
+  {
+    title: '애드센스·광고 준비',
+    desc: '승인 전 광고 미노출 상태, ads.txt, 정책 페이지, 광고 위치, 제휴 콘텐츠 고지를 점검합니다.',
+    href: '/admin/adsense',
+    badge: '수익화'
+  },
+  {
+    title: '통계·운영 리포트',
+    desc: '카테고리별 기사 수, 최근 발행량, 조회 지표, 제보 처리량, 이미지 누락 여부를 운영 지표로 확인합니다.',
+    href: '/admin/system',
+    badge: '통계'
+  }
+];
 
+const workflow = [
+  ['01', '기사 초안 작성', '제목·요약·본문·이미지·태그를 입력합니다.'],
+  ['02', '편집 검수', '소제목 과다, 광고성 표현, 이미지 출처, 개인정보 노출을 확인합니다.'],
+  ['03', '섹션 배치', '메인, 최신, 카테고리, 랭킹 영역 노출 여부를 결정합니다.'],
+  ['04', '예약 또는 공개', '엠바고·예약 발행 또는 즉시 발행 상태로 전환합니다.'],
+  ['05', '사후 관리', '정정 요청, 반론 요청, 썸네일 깨짐, 푸터 등록정보를 점검합니다.']
+];
+
+export default function AdminDashboardPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-sm font-bold text-brand-blue">MediaOffice</p>
-        <h1 className="mt-2 text-3xl font-black text-brand-navy">인터넷매체 운영 대시보드</h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-          생활경제저널의 기사 발행, 이미지 관리, 제보 접수, 광고·제휴 영업, 컴플라이언스, 사이트 등록정보를 분리된 관리자에서 운영합니다.
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatCard label="신규 문의" value={leads.count ?? 0} />
-        <StatCard label="작성·검수 기사" value={articles.count ?? 0} />
-        <StatCard label="상담 진행 고객" value={clients.count ?? 0} />
-        <StatCard label="결제 금액" value={`${paid.toLocaleString()}원`} />
-      </div>
-
-      <section className="rounded-2xl border bg-white p-6">
-        <div className="flex items-end justify-between gap-4">
+    <main className="min-h-screen bg-[#f3f5f8] text-slate-900">
+      <section className="border-b bg-slate-950 text-white">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-xl font-black text-gray-950">주요 기능</h2>
-            <p className="mt-1 text-sm text-gray-500">인터넷신문 운영에 필요한 관리자 기능을 모듈별로 분리했습니다.</p>
+            <p className="text-xs font-black tracking-[0.28em] text-amber-300">MEDIAOFFICE CMS</p>
+            <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] md:text-4xl">에듀저널 관리자</h1>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
+              인터넷신문 운영에 필요한 기사 작성, 이미지 DB, 섹션 편성, 제보 접수, 등록정보, 정책 페이지, 광고 준비 기능을 한 화면에서 관리하는 백오피스입니다.
+            </p>
           </div>
-          <Link href="/admin/system" className="rounded-full border px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50">전체 운영 구조 보기</Link>
+          <div className="flex gap-2">
+            <Link href="/" className="rounded-full border border-slate-600 px-4 py-2 text-sm font-bold text-slate-200 hover:border-white">공개 사이트</Link>
+            <Link href="/admin/articles" className="rounded-full bg-amber-400 px-4 py-2 text-sm font-black text-slate-950">기사 관리</Link>
+          </div>
         </div>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
-          {quickModules.map((module) => (
-            <Link key={module.href} href={module.href} className="rounded-2xl border p-5 transition hover:-translate-y-0.5 hover:border-brand-blue hover:shadow-sm">
-              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-black text-brand-blue">{module.badge}</span>
-              <h3 className="mt-4 font-black text-gray-950">{module.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-gray-600">{module.desc}</p>
-            </Link>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-7">
+        <div className="grid gap-4 md:grid-cols-4">
+          {stats.map(([label, value, memo]) => (
+            <article key={label} className="border bg-white p-5 shadow-sm">
+              <p className="text-xs font-black text-slate-500">{label}</p>
+              <strong className="mt-2 block text-2xl font-black text-slate-950">{value}</strong>
+              <p className="mt-2 text-xs font-bold text-amber-600">{memo}</p>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border bg-white p-6 lg:col-span-2">
-          <h2 className="font-black text-brand-navy">오늘 운영 체크리스트</h2>
-          <ul className="mt-4 grid gap-3 text-sm text-gray-700 md:grid-cols-2">
-            <li className="rounded-xl bg-slate-50 p-4">신규 기사 초안의 제목, 본문 길이, 이미지 캡션을 확인합니다.</li>
-            <li className="rounded-xl bg-slate-50 p-4">제휴 콘텐츠는 상단 고지와 광고성 표현을 검수합니다.</li>
-            <li className="rounded-xl bg-slate-50 p-4">수신동의 없는 광고성 이메일·문자 발송을 제한합니다.</li>
-            <li className="rounded-xl bg-slate-50 p-4">푸터 사업자 정보와 인터넷신문 등록 상태를 점검합니다.</li>
-          </ul>
+      <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-8 lg:grid-cols-[1.4fr_0.9fr]">
+        <div className="border bg-white p-6 shadow-sm">
+          <div className="flex items-end justify-between gap-3 border-b-2 border-slate-950 pb-3">
+            <div>
+              <p className="text-xs font-black tracking-[0.18em] text-amber-600">CMS MODULES</p>
+              <h2 className="mt-1 text-2xl font-black">주요 관리 기능</h2>
+            </div>
+            <Link href="/admin/system" className="text-sm font-black text-slate-700 hover:text-amber-600">전체 구조 보기</Link>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {cmsModules.map((module) => (
+              <Link key={module.title} href={module.href} className="group border border-slate-200 p-4 transition hover:border-amber-500 hover:bg-amber-50/40">
+                <span className="inline-flex rounded-full bg-slate-950 px-2.5 py-1 text-[11px] font-black text-white">{module.badge}</span>
+                <h3 className="mt-4 line-clamp-2 text-[16px] font-black leading-6 group-hover:text-amber-700">{module.title}</h3>
+                <p className="mt-2 line-clamp-4 text-[13px] leading-6 text-slate-600">{module.desc}</p>
+              </Link>
+            ))}
+          </div>
         </div>
-        <div className="rounded-2xl border bg-white p-6">
-          <h2 className="font-black text-brand-navy">발행 원칙</h2>
-          <p className="mt-4 text-sm leading-6 text-gray-600">
-            자동화는 초안 생성과 정리까지만 수행하고, 공개 발행은 운영자가 검수한 뒤 진행합니다. 이미지와 자료는 출처·권리 확인이 저장되어야 합니다.
-          </p>
-        </div>
+
+        <aside className="space-y-6">
+          <section className="border bg-white p-6 shadow-sm">
+            <p className="text-xs font-black tracking-[0.18em] text-amber-600">PUBLISH FLOW</p>
+            <h2 className="mt-1 text-xl font-black">운영 플로우</h2>
+            <div className="mt-4 space-y-3">
+              {workflow.map(([num, title, desc]) => (
+                <div key={num} className="grid grid-cols-[36px_1fr] gap-3 border-b pb-3 last:border-b-0">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-xs font-black text-white">{num}</span>
+                  <div>
+                    <p className="text-sm font-black">{title}</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="border bg-slate-950 p-6 text-white shadow-sm">
+            <p className="text-xs font-black tracking-[0.18em] text-amber-300">REGISTRATION CHECK</p>
+            <h2 className="mt-1 text-xl font-black">인터넷신문 신청용 점검</h2>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+              <li>• 카테고리별 기사 수와 최근 발행일 확인</li>
+              <li>• 깨진 썸네일·빈 이미지 확인</li>
+              <li>• 개인정보처리방침·청소년보호정책 연결 확인</li>
+              <li>• 기사제보·정정보도·문의 창구 확인</li>
+              <li>• 발행인·편집인·등록정보 표기 확인</li>
+            </ul>
+          </section>
+        </aside>
       </section>
-    </div>
+    </main>
   );
 }
