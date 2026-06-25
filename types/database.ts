@@ -1,6 +1,6 @@
 export type MediaRegistrationStatus = 'unregistered' | 'preparing' | 'registered';
 export type ArticleType = 'normal' | 'brand_interview' | 'sponsored' | 'advertorial' | 'press_release';
-export type ArticleStatus = 'draft' | 'review' | 'published' | 'archived';
+export type ArticleStatus = 'draft' | 'review' | 'published' | 'scheduled' | 'archived';
 export type ArticleVisualMode = 'auto' | 'text_card' | 'photo' | 'none';
 export type EditorialStatus = 'planning' | 'writing' | 'review' | 'approved' | 'scheduled' | 'published' | 'archived';
 
