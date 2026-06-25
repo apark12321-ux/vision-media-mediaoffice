@@ -11,7 +11,7 @@ export default async function NewArticlePage() {
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-500">ARTICLE CMS</p>
           <h1 className="mt-3 text-3xl font-black text-brand-navy">새 기사 작성</h1>
-          <p className="mt-3 text-sm leading-7 text-slate-600">여기서 저장한 기사는 Supabase DB에 들어가고, published 상태이면 공개 홈·카테고리·기사 상세에 바로 반영됩니다.</p>
+          <p className="mt-3 text-sm leading-7 text-slate-600">여기서 저장한 기사는 Supabase DB에 들어가고, published 상태이면 공개 홈·카테고리·기사 상세에 바로 반영됩니다. Git 커밋 옵션을 켜면 기사 원문 스냅샷도 저장소에 백업됩니다.</p>
         </div>
         <Link href="/admin/articles" className="rounded-full border px-4 py-2 text-sm font-black text-slate-700">목록</Link>
       </div>
@@ -52,6 +52,12 @@ export default async function NewArticlePage() {
           <label className="grid gap-2 text-sm font-bold text-slate-700">출처 메모<input name="source_note" className="rounded-xl border px-4 py-3" /></label>
           <label className="flex items-center gap-3 text-sm font-bold text-slate-700"><input name="fact_checked" type="checkbox" /> 팩트체크 완료</label>
           <label className="flex items-center gap-3 text-sm font-bold text-slate-700"><input name="compliance_checked" type="checkbox" /> 광고성/저작권/명예훼손 위험 검토</label>
+        </section>
+
+        <section className="grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <h2 className="text-lg font-black text-amber-950">Git 백업 커밋</h2>
+          <p className="text-sm leading-7 text-amber-900">체크하면 DB 저장 후 content/articles/슬러그.json 파일을 GitHub main 브랜치에 커밋합니다. GitHub 토큰이 없으면 DB 저장만 하고 커밋은 건너뜁니다.</p>
+          <label className="flex items-center gap-3 text-sm font-black text-amber-950"><input name="commit_to_git" type="checkbox" defaultChecked /> 기사 스냅샷을 GitHub에 커밋</label>
         </section>
 
         <button className="rounded-2xl bg-brand-navy px-6 py-4 text-base font-black text-white">DB에 저장하고 공개 사이트 반영</button>
