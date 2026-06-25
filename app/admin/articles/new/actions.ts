@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { requireAdminUser } from '@/lib/admin/auth';
 import { fallbackCategories } from '@/lib/data/public';
+import { commitArticleSnapshot } from '@/lib/github/content-commit';
 import type { ArticleStatus, ArticleType } from '@/types/database';
 
 function safeSlug(value: string) {
@@ -55,6 +56,7 @@ export async function createArticle(formData: FormData): Promise<void> {
   const categorySlug = String(formData.get('category_slug') ?? 'lifelong-education');
   const status = String(formData.get('status') ?? 'draft') as ArticleStatus;
   const articleType = String(formData.get('article_type') ?? 'normal') as ArticleType;
+  const shouldCommitToGit = formData.get('commit_to_git') === 'on';
   const now = new Date().toISOString();
 
   if (!title || !slug) {
@@ -63,7 +65,7 @@ export async function createArticle(formData: FormData): Promise<void> {
 
   const { data: category } = await supabase
     .from('categories')
-    .select('id, slug')
+    .select('id, slug, name')
     .eq('slug', categorySlug)
     .maybeSingle();
 
@@ -80,6 +82,8 @@ export async function createArticle(formData: FormData): Promise<void> {
     summary: String(formData.get('summary') ?? '').trim() || null,
     content: String(formData.get('content') ?? '').trim() || null,
     category_id: category?.id ?? null,
+    category_slug: category?.slug ?? categorySlug,
+    category_name: category?.name ?? null,
     article_type: articleType,
     status,
     editorial_status: status === 'published' ? 'published' : status === 'scheduled' ? 'scheduled' : 'writing',
@@ -109,19 +113,38 @@ export async function createArticle(formData: FormData): Promise<void> {
     throw new Error(error.message);
   }
 
+  let githubCommitResult: Awaited<ReturnType<typeof commitArticleSnapshot>> | null = null;
+
+  if (shouldCommitToGit) {
+    githubCommitResult = await commitArticleSnapshot({
+      id: data.id,
+      title,
+      slug,
+      status,
+      article: {
+        ...article,
+        id: data.id
+      },
+      actorEmail: user.email
+    });
+  }
+
   await supabase.from('admin_activity_logs').insert({
     actor_email: user.email,
     action: 'article.create',
     target_table: 'articles',
     target_id: data.id,
-    details: { title, slug, status },
+    details: { title, slug, status, git: githubCommitResult },
     created_at: now
   });
 
   await supabase.from('article_revisions').insert({
     article_id: data.id,
     editor_email: user.email,
-    revision_data: article,
+    revision_data: {
+      ...article,
+      git: githubCommitResult
+    },
     created_at: now
   });
 
