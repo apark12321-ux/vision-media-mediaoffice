@@ -1,3 +1,4 @@
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { eduArticleSeeds } from '@/lib/data/edu-articles';
 import type { Article, Category, Product, SiteSettings } from '@/types/database';
 
@@ -33,88 +34,10 @@ export const fallbackCategories = [
   { id: 'cat-press-release', name: '공지·보도', slug: 'press-release', description: '교육 관련 공지와 보도자료', sort_order: 9 }
 ] as Category[];
 
-type WpRendered = { rendered?: string };
-type WpCategory = { id: number; name: string; slug: string; description?: string; count?: number };
-type WpAuthor = { id: number; name?: string; slug?: string };
-type WpMedia = { source_url?: string; alt_text?: string; caption?: WpRendered; media_details?: { sizes?: Record<string, { source_url?: string }> } };
-type WpPost = {
-  id: number;
-  date?: string;
-  modified?: string;
-  slug: string;
-  title?: WpRendered;
-  excerpt?: WpRendered;
-  content?: WpRendered;
-  categories?: number[];
-  author?: number;
-  _embedded?: {
-    author?: WpAuthor[];
-    'wp:featuredmedia'?: WpMedia[];
-    'wp:term'?: Array<Array<WpCategory>>;
-  };
-};
-
-function wordpressSiteUrl() {
-  return (process.env.WORDPRESS_SITE_URL || process.env.NEXT_PUBLIC_WORDPRESS_SITE_URL || '').replace(/\/$/, '');
-}
-
-function wordpressApiBase() {
-  const explicit = process.env.WORDPRESS_API_URL || process.env.NEXT_PUBLIC_WORDPRESS_API_URL;
-  if (explicit) return explicit.replace(/\/$/, '');
-  const siteUrl = wordpressSiteUrl();
-  return siteUrl ? `${siteUrl}/wp-json/wp/v2` : '';
-}
-
-function wordpressAdminUrl() {
-  const explicit = process.env.WORDPRESS_ADMIN_URL || process.env.NEXT_PUBLIC_WORDPRESS_ADMIN_URL;
-  if (explicit) return explicit;
-  const siteUrl = wordpressSiteUrl();
-  return siteUrl ? `${siteUrl}/wp-admin/` : '';
-}
-
-function hasWordPressEnv() {
-  return Boolean(wordpressApiBase());
-}
-
-function decodeHtml(value: string) {
-  return value
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&rsquo;/g, '’')
-    .replace(/&lsquo;/g, '‘')
-    .replace(/&rdquo;/g, '”')
-    .replace(/&ldquo;/g, '“')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .trim();
-}
-
-function stripHtml(value = '') {
-  return decodeHtml(
-    value
-      .replace(/<\/?(p|div|section|article|h[1-6]|li|blockquote)[^>]*>/gi, '\n')
-      .replace(/<br\s*\/?\s*>/gi, '\n')
-      .replace(/<[^>]+>/g, '')
-      .replace(/\n{3,}/g, '\n\n')
-      .replace(/[ \t]+/g, ' ')
-  );
-}
-
-async function fetchWordPress<T>(path: string): Promise<T | null> {
-  const base = wordpressApiBase();
-  if (!base) return null;
-
+function createOptionalCmsClient() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
   try {
-    const separator = path.includes('?') ? '&' : '?';
-    const response = await fetch(`${base}${path}${separator}_=${Date.now()}`, {
-      next: { revalidate: 60 },
-      headers: { Accept: 'application/json' }
-    });
-
-    if (!response.ok) return null;
-    return (await response.json()) as T;
+    return createSupabaseAdminClient();
   } catch {
     return null;
   }
@@ -162,140 +85,180 @@ function toArticle(seed: (typeof eduArticleSeeds)[number]) {
 
 export const fallbackArticles = eduArticleSeeds.map(toArticle);
 
-function wpCategoryToCategory(item: WpCategory, index = 0): Category {
+function normalizeCategory(row: Record<string, unknown>, index = 0): Category {
   return {
-    id: `wp-cat-${item.id}`,
-    name: decodeHtml(item.name),
-    slug: item.slug,
-    description: stripHtml(item.description ?? ''),
-    sort_order: index + 1
-  } as Category;
-}
-
-function embeddedPostCategory(post: WpPost, wpCategories: Category[]) {
-  const termGroups = post._embedded?.['wp:term'] ?? [];
-  const flatTerms = termGroups.flat();
-  const firstEmbeddedCategory = flatTerms.find((term) => post.categories?.includes(term.id));
-
-  if (firstEmbeddedCategory) {
-    return wpCategoryToCategory(firstEmbeddedCategory);
-  }
-
-  const firstCategoryId = post.categories?.[0];
-  if (firstCategoryId) {
-    return wpCategories.find((item) => item.id === `wp-cat-${firstCategoryId}`) ?? null;
-  }
-
-  return null;
-}
-
-function featuredImage(post: WpPost) {
-  const media = post._embedded?.['wp:featuredmedia']?.[0];
-  return media?.media_details?.sizes?.large?.source_url || media?.media_details?.sizes?.medium_large?.source_url || media?.source_url || null;
-}
-
-function wpPostToArticle(post: WpPost, wpCategories: Category[]): Article {
-  const categoryItem = embeddedPostCategory(post, wpCategories) ?? fallbackCategories[0]!;
-  const imageUrl = featuredImage(post);
-  const title = stripHtml(post.title?.rendered ?? '제목 없음');
-  const summary = stripHtml(post.excerpt?.rendered ?? '').slice(0, 240) || title;
-  const content = stripHtml(post.content?.rendered ?? post.excerpt?.rendered ?? summary);
-  const publishedAt = post.date ? new Date(post.date).toISOString() : new Date().toISOString();
-  const modifiedAt = post.modified ? new Date(post.modified).toISOString() : publishedAt;
-
-  return {
-    id: `wp-${post.id}`,
-    title,
-    slug: post.slug,
-    subtitle: null,
-    summary,
-    content,
-    article_type: 'normal',
-    status: 'published',
-    thumbnail_url: imageUrl || realPhotoThumbnail(`wp-${post.id}`, categoryItem.slug),
-    image_caption: imageUrl ? `${categoryItem.name} 관련 대표 이미지.` : `${categoryItem.name} 관련 교육 현장 자료사진.`,
-    image_source_name: imageUrl ? 'WordPress 미디어 라이브러리' : '공개 사진 자료',
-    image_source_url: imageUrl,
-    author_name: post._embedded?.author?.[0]?.name ?? '에듀저널 편집부',
-    is_sponsored: false,
-    tags: [],
-    published_at: publishedAt,
-    created_at: publishedAt,
-    updated_at: modifiedAt,
-    categories: categoryItem
-  } as Article;
-}
-
-async function getWordPressCategories(): Promise<Category[] | null> {
-  const items = await fetchWordPress<WpCategory[]>('/categories?per_page=100&orderby=id&order=asc');
-  if (!items?.length) return null;
-  return items.map(wpCategoryToCategory);
-}
-
-async function getWordPressPosts(limit?: number): Promise<Article[] | null> {
-  const perPage = Math.min(Math.max(limit ?? 100, 1), 100);
-  const categories = (await getWordPressCategories()) ?? fallbackCategories;
-  const posts = await fetchWordPress<WpPost[]>(`/posts?per_page=${perPage}&status=publish&_embed=1&orderby=date&order=desc`);
-  if (!posts?.length) return null;
-  return posts.map((post) => wpPostToArticle(post, categories));
-}
-
-async function getWordPressPostsByCategory(slug: string, limit?: number): Promise<Article[] | null> {
-  const wpCategories = await fetchWordPress<WpCategory[]>(`/categories?slug=${encodeURIComponent(slug)}&per_page=1`);
-  const wpCategory = wpCategories?.[0];
-  if (!wpCategory) return null;
-
-  const categories = (await getWordPressCategories()) ?? fallbackCategories;
-  const perPage = Math.min(Math.max(limit ?? 100, 1), 100);
-  const posts = await fetchWordPress<WpPost[]>(`/posts?per_page=${perPage}&status=publish&categories=${wpCategory.id}&_embed=1&orderby=date&order=desc`);
-  if (!posts?.length) return null;
-  return posts.map((post) => wpPostToArticle(post, categories));
-}
-
-async function getWordPressPostBySlug(slug: string): Promise<Article | null> {
-  const categories = (await getWordPressCategories()) ?? fallbackCategories;
-  const posts = await fetchWordPress<WpPost[]>(`/posts?slug=${encodeURIComponent(slug)}&status=publish&_embed=1`);
-  if (!posts?.length) return null;
-  return wpPostToArticle(posts[0]!, categories);
-}
-
-export async function getPublicSiteSettings(): Promise<SiteSettings> {
-  return {
-    ...fallbackSettings,
-    site_description: hasWordPressEnv()
-      ? 'WordPress를 관리자 CMS로 사용하고 Next.js가 공개 프론트를 제공하는 교육 전문 인터넷매체입니다.'
-      : fallbackSettings.site_description
+    id: String(row.id),
+    name: String(row.name ?? '분류 없음'),
+    slug: String(row.slug ?? row.id),
+    description: row.description ? String(row.description) : null,
+    sort_order: Number(row.sort_order ?? index + 1)
   };
 }
 
+async function getCmsCategories(): Promise<Category[] | null> {
+  const supabase = createOptionalCmsClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase.from('categories').select('*').order('sort_order', { ascending: true });
+  if (error || !data?.length) return null;
+  return data.map((row, index) => normalizeCategory(row as Record<string, unknown>, index));
+}
+
+function categoryMap(categories: Category[]) {
+  return new Map(categories.map((item) => [item.id, item]));
+}
+
+function normalizeArticle(row: Record<string, unknown>, categories: Category[]): Article {
+  const byId = categoryMap(categories);
+  const categoryId = row.category_id ? String(row.category_id) : null;
+  const categoryItem = (categoryId && byId.get(categoryId)) || fallbackCategories[0]!;
+  const publishedAt = row.published_at ? String(row.published_at) : String(row.created_at ?? new Date().toISOString());
+  const updatedAt = row.updated_at ? String(row.updated_at) : publishedAt;
+  const slug = String(row.slug ?? row.id);
+  const thumbnail = row.thumbnail_url ? String(row.thumbnail_url) : realPhotoThumbnail(String(row.id), categoryItem.slug);
+
+  return {
+    id: String(row.id),
+    title: String(row.title ?? '제목 없음'),
+    slug,
+    subtitle: row.subtitle ? String(row.subtitle) : null,
+    summary: row.summary ? String(row.summary) : null,
+    content: row.content ? String(row.content) : null,
+    category_id: categoryId,
+    article_type: (row.article_type as Article['article_type']) ?? 'normal',
+    status: (row.status as Article['status']) ?? 'draft',
+    editorial_status: (row.editorial_status as Article['editorial_status']) ?? null,
+    thumbnail_url: thumbnail,
+    image_caption: row.image_caption ? String(row.image_caption) : `${categoryItem.name} 관련 대표 이미지.`,
+    image_source_name: row.image_source_name ? String(row.image_source_name) : '관리자 등록 이미지',
+    image_source_url: row.image_source_url ? String(row.image_source_url) : thumbnail,
+    image_author: row.image_author ? String(row.image_author) : null,
+    image_license: row.image_license ? String(row.image_license) : null,
+    image_license_url: row.image_license_url ? String(row.image_license_url) : null,
+    visual_mode: (row.visual_mode as Article['visual_mode']) ?? 'photo',
+    author_name: String(row.author_name ?? '에듀저널 편집부'),
+    client_id: row.client_id ? String(row.client_id) : null,
+    is_sponsored: Boolean(row.is_sponsored),
+    sponsored_notice: row.sponsored_notice ? String(row.sponsored_notice) : null,
+    tags: Array.isArray(row.tags) ? (row.tags as string[]) : [],
+    seo_title: row.seo_title ? String(row.seo_title) : null,
+    seo_description: row.seo_description ? String(row.seo_description) : null,
+    source_urls: Array.isArray(row.source_urls) ? (row.source_urls as string[]) : [],
+    source_note: row.source_note ? String(row.source_note) : null,
+    fact_checked: typeof row.fact_checked === 'boolean' ? row.fact_checked : false,
+    scheduled_at: row.scheduled_at ? String(row.scheduled_at) : null,
+    compliance_checked: typeof row.compliance_checked === 'boolean' ? row.compliance_checked : false,
+    forbidden_terms_detected: Array.isArray(row.forbidden_terms_detected) ? (row.forbidden_terms_detected as string[]) : [],
+    published_at: publishedAt,
+    created_at: String(row.created_at ?? publishedAt),
+    updated_at: updatedAt,
+    categories: categoryItem
+  };
+}
+
+async function getCmsArticles(limit?: number): Promise<Article[] | null> {
+  const supabase = createOptionalCmsClient();
+  if (!supabase) return null;
+
+  const categories = (await getCmsCategories()) ?? fallbackCategories;
+  let query = supabase
+    .from('articles')
+    .select('*')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+
+  if (limit) query = query.limit(limit);
+
+  const { data, error } = await query;
+  if (error || !data?.length) return null;
+  return data.map((row) => normalizeArticle(row as Record<string, unknown>, categories));
+}
+
+async function getCmsArticlesByCategory(slug: string, limit?: number): Promise<Article[] | null> {
+  const supabase = createOptionalCmsClient();
+  if (!supabase) return null;
+
+  const categories = (await getCmsCategories()) ?? fallbackCategories;
+  const categoryItem = categories.find((item) => item.slug === slug);
+  if (!categoryItem) return null;
+
+  let query = supabase
+    .from('articles')
+    .select('*')
+    .eq('status', 'published')
+    .eq('category_id', categoryItem.id)
+    .order('published_at', { ascending: false });
+
+  if (limit) query = query.limit(limit);
+
+  const { data, error } = await query;
+  if (error || !data?.length) return null;
+  return data.map((row) => normalizeArticle(row as Record<string, unknown>, categories));
+}
+
+async function getCmsArticleBySlug(slug: string): Promise<Article | null> {
+  const supabase = createOptionalCmsClient();
+  if (!supabase) return null;
+
+  const categories = (await getCmsCategories()) ?? fallbackCategories;
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('status', 'published')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return normalizeArticle(data as Record<string, unknown>, categories);
+}
+
+async function getCmsSettings(): Promise<SiteSettings | null> {
+  const supabase = createOptionalCmsClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return { ...fallbackSettings, ...(data as Partial<SiteSettings>) } as SiteSettings;
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  return (await getCmsSettings()) ?? fallbackSettings;
+}
+
 export async function getCategories(): Promise<Category[]> {
-  return (await getWordPressCategories()) ?? fallbackCategories;
+  return (await getCmsCategories()) ?? fallbackCategories;
 }
 
 export async function getArticles(limit?: number): Promise<Article[]> {
-  return (await getWordPressPosts(limit)) ?? fallbackArticles.slice(0, limit ?? fallbackArticles.length);
+  return (await getCmsArticles(limit)) ?? fallbackArticles.slice(0, limit ?? fallbackArticles.length);
 }
 
 export async function getPublishedArticles(limit?: number): Promise<Article[]> {
-  return (await getWordPressPosts(limit)) ?? fallbackArticles.slice(0, limit ?? fallbackArticles.length);
+  return getArticles(limit);
 }
 
 export async function getArticlesByCategory(slug: string, limit?: number): Promise<Article[]> {
-  const wpItems = await getWordPressPostsByCategory(slug, limit);
-  if (wpItems?.length) return wpItems;
+  const cmsItems = await getCmsArticlesByCategory(slug, limit);
+  if (cmsItems?.length) return cmsItems;
 
   const items = fallbackArticles.filter((article) => article.categories?.slug === slug);
   return items.slice(0, limit ?? items.length);
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  const wpItem = await getWordPressPostBySlug(slug);
-  if (wpItem) return wpItem;
+  const cmsItem = await getCmsArticleBySlug(slug);
+  if (cmsItem) return cmsItem;
   return fallbackArticles.find((article) => article.slug === slug || article.id === slug) ?? null;
 }
 
 export function getWordPressAdminUrl() {
-  return wordpressAdminUrl();
+  return '';
 }
 
 export async function getProducts(): Promise<Product[]> { return []; }
