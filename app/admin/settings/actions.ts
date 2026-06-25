@@ -1,10 +1,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { requireAdminUser } from '@/lib/admin/auth';
 
-export async function saveSiteSettings(formData: FormData) {
+export async function saveSiteSettings(formData: FormData): Promise<void> {
   const user = await requireAdminUser();
   const supabase = createSupabaseAdminClient();
   const now = new Date().toISOString();
@@ -32,19 +33,21 @@ export async function saveSiteSettings(formData: FormData) {
 
   const { error } = await supabase.from('site_settings').upsert(payload, { onConflict: 'id' });
 
-  if (!error) {
-    await supabase.from('admin_activity_logs').insert({
-      actor_email: user.email,
-      action: 'site_settings.upsert',
-      target_table: 'site_settings',
-      target_id: payload.id,
-      details: { site_name: payload.site_name },
-      created_at: now
-    });
+  if (error) {
+    throw new Error(error.message);
   }
+
+  await supabase.from('admin_activity_logs').insert({
+    actor_email: user.email,
+    action: 'site_settings.upsert',
+    target_table: 'site_settings',
+    target_id: payload.id,
+    details: { site_name: payload.site_name },
+    created_at: now
+  });
 
   revalidatePath('/');
   revalidatePath('/company');
   revalidatePath('/about');
-  return { ok: !error, message: error?.message ?? '저장되었습니다.' };
+  redirect('/admin/settings');
 }
