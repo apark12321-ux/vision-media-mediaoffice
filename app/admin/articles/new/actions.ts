@@ -43,7 +43,7 @@ async function ensureDefaultCategories() {
   }
 }
 
-export async function createArticle(formData: FormData) {
+export async function createArticle(formData: FormData): Promise<void> {
   const user = await requireAdminUser();
   const supabase = createSupabaseAdminClient();
 
@@ -58,7 +58,7 @@ export async function createArticle(formData: FormData) {
   const now = new Date().toISOString();
 
   if (!title || !slug) {
-    return { ok: false, message: '제목과 슬러그가 필요합니다.' };
+    throw new Error('제목과 슬러그가 필요합니다.');
   }
 
   const { data: category } = await supabase
@@ -106,7 +106,7 @@ export async function createArticle(formData: FormData) {
   const { data, error } = await supabase.from('articles').insert(article).select('id, slug').single();
 
   if (error) {
-    return { ok: false, message: error.message };
+    throw new Error(error.message);
   }
 
   await supabase.from('admin_activity_logs').insert({
@@ -130,5 +130,5 @@ export async function createArticle(formData: FormData) {
   revalidatePath(`/articles/${data.slug}`);
   revalidatePath(`/category/${categorySlug}`);
 
-  redirect(`/admin/articles`);
+  redirect('/admin/articles');
 }
