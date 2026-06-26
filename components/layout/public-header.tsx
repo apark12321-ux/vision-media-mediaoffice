@@ -25,9 +25,9 @@ export function PublicHeader() {
   return (
     <header id="top" className="border-b bg-white">
       <div className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto flex max-w-[1180px] flex-col gap-2 px-4 py-2 text-[12px] text-slate-500 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto flex max-w-[1180px] flex-col gap-2 px-4 py-2.5 text-[13px] leading-6 text-slate-600 md:flex-row md:items-center md:justify-between md:text-[13px]">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="font-black text-slate-800">교육 전문 인터넷매체</span>
+            <span className="font-black text-slate-900">교육 전문 인터넷매체</span>
             <span>평생학습 · 자격증 · 시니어교육 · 에듀테크 · 교육기관</span>
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-bold">
@@ -41,27 +41,27 @@ export function PublicHeader() {
       </div>
 
       <div className="mx-auto flex max-w-[1180px] flex-col gap-4 px-4 py-5 md:flex-row md:items-center md:justify-between">
-        <div className="hidden rounded-lg border border-emerald-100 bg-emerald-50 px-5 py-3 text-center text-sm font-black text-emerald-700 md:block">
+        <div className="hidden rounded-lg border border-emerald-100 bg-emerald-50 px-5 py-3 text-center text-[15px] font-black text-emerald-700 md:block">
           평생교육 정보 허브
         </div>
         <Link href="/" className="block text-center">
-          <p className="text-[11px] font-black tracking-[0.34em] text-teal-600">EDUCATION NEWS NETWORK</p>
-          <div className="mt-1 flex items-end justify-center gap-3">
-            <span className="text-[42px] font-black leading-none tracking-[-0.08em] text-slate-950 md:text-[54px]">에듀저널</span>
-            <span className="pb-1 text-[12px] font-black tracking-[0.22em] text-slate-400">EDU JOURNAL</span>
+          <p className="text-[12px] font-black tracking-[0.3em] text-teal-600 md:text-[12px]">EDUCATION NEWS NETWORK</p>
+          <div className="mt-1 flex items-end justify-center gap-2 md:gap-3">
+            <span className="text-[40px] font-black leading-none tracking-[-0.08em] text-slate-950 sm:text-[46px] md:text-[56px]">에듀저널</span>
+            <span className="pb-1 text-[12px] font-black tracking-[0.2em] text-slate-400 md:text-[13px]">EDU JOURNAL</span>
           </div>
-          <p className="mt-2 text-[13px] font-semibold text-slate-500">교육 현장과 제도 변화를 매일 전하는 인터넷신문</p>
+          <p className="mt-2 text-[14px] font-semibold leading-6 text-slate-600 md:text-[15px]">교육 현장과 제도 변화를 매일 전하는 인터넷신문</p>
         </Link>
-        <form action="/search" className="flex h-10 w-full max-w-[300px] overflow-hidden rounded-sm border border-slate-300 bg-white">
-          <input name="q" aria-label="기사 검색" placeholder="검색어 입력" className="min-w-0 flex-1 px-3 text-[13px] outline-none" />
-          <button className="bg-slate-950 px-4 text-[13px] font-black text-white" type="submit">검색</button>
+        <form action="/search" className="flex h-12 w-full max-w-full overflow-hidden rounded-md border border-slate-300 bg-white md:h-11 md:max-w-[320px]">
+          <input name="q" aria-label="기사 검색" placeholder="검색어 입력" className="min-w-0 flex-1 px-4 text-[16px] outline-none md:text-[14px]" />
+          <button className="bg-slate-950 px-5 text-[15px] font-black text-white md:text-[14px]" type="submit">검색</button>
         </form>
       </div>
 
       <nav className="bg-[#20b8b8] text-white">
-        <div className="mx-auto flex h-10 max-w-[1180px] items-center overflow-x-auto px-4 text-[14px] font-black">
+        <div className="mx-auto flex h-12 max-w-[1180px] items-center overflow-x-auto px-3 text-[15px] font-black md:h-11 md:px-4 md:text-[15px]">
           {navItems.map(([label, href], index) => (
-            <Link key={href} href={href} className="shrink-0 px-3 py-2 hover:bg-teal-700">
+            <Link key={href} href={href} className="shrink-0 px-3.5 py-3 leading-none hover:bg-teal-700 md:px-3">
               {index > 0 ? <span className="mr-3 text-white/40">·</span> : null}{label}
             </Link>
           ))}
