@@ -1,7 +1,15 @@
 import type { Metadata } from 'next';
+import { Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
+
+const notoSansKr = Noto_Sans_KR({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-noto-sans-kr'
+});
 
 export const metadata: Metadata = {
   title: {
@@ -13,8 +21,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
-      <body className="min-h-screen bg-white text-brand-ink antialiased">
+    <html lang="ko" className={notoSansKr.variable}>
+      <body className={`${notoSansKr.className} min-h-screen bg-white text-brand-ink antialiased`}>
         <PublicHeader />
         <main>{children}</main>
         <PublicFooter />
